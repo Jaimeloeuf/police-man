@@ -1,7 +1,7 @@
 {
   "name": "auth-service",
   "version": "0.0.1",
-  "description": "auth-service for the Promist app",
+  "description": "Generic IAM microservice",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Jaimeloeuf/Promist.git"
+    "url": "git+https://github.com/Jaimeloeuf/police-man.git"
   },
   "author": "Jaime Loeuf",
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/Jaimeloeuf/Promist/issues"
+    "url": "https://github.com/Jaimeloeuf/police-man/issues"
   },
-  "homepage": "https://github.com/Jaimeloeuf/Promist#readme",
+  "homepage": "https://github.com/Jaimeloeuf/police-man#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "express": "^4.16.4",
