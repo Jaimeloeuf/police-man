@@ -1,0 +1,29 @@
+{
+  "name": "auth-service",
+  "version": "0.0.1",
+  "description": "auth-service for the Promist app",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jaimeloeuf/Promist.git"
+  },
+  "author": "Jaime Loeuf",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/Jaimeloeuf/Promist/issues"
+  },
+  "homepage": "https://github.com/Jaimeloeuf/Promist#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.16.4",
+    "jsonwebtoken": "^8.5.0",
+    "mariadb": "^2.0.3"
+  },
+  "devDependencies": {
+    "mocha": "^6.0.2"
+  }
+}
