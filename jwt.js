@@ -77,24 +77,33 @@ function test() {
 function apply_keys() {
     const { publicKey, privateKey } = generateKeys();
 
+    // Create an object to attach all things as properties to it as return value of the function
+    const export_object = { publicKey };
+
     /*  Partial application with the private key for Signing in its closure.
         Resolves with the signed JWT, else
         Rejects with an error.  */
-    create_token = create_token(privateKey);
+    export_object.create_token = create_token(privateKey);
 
     /*  Partial application with the public key for verification in its closure.
         If signature is valid and the optional expiration, audience, or issuer are valid if given
         Resolves with the decoded token, else
         Rejects with an error.  */
-    verify_token = verify_token(publicKey);
+    export_object.verify_token = verify_token(publicKey);
 
     // Return the public key for other services to use for verification, but let privateKey
     // be destroyed when this function ends, to prevent it from being shared or anything
-    return publicKey;
+
+    // Return the object with the new create and verify token methods with the publicKey
+    return export_object;
 }
 
 // Apply keys into closures of the sign and verify functions and get back publicKey for verification
-const publicKey = apply_keys();
+// const publicKey = apply_keys();
+
+// Use the function to create create and verify token methods with keys in them
+const keys_applied = apply_keys();
+
 
 /* Add a function to forge a public key based on a private key? */
 
