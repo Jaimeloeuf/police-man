@@ -18,8 +18,8 @@
 */
 
 // Dependencies
-const jwt = require('./jwt');
-
+// Directly call apply_keys method to get create and verify token methods with key-pair baked in
+const jwt = require('./jwt').apply_keys();
 
 // Default JWT Signing options object
 var signOptions = {
@@ -97,5 +97,5 @@ module.exports = {
     verify_token,
 
     // Export method for getting public key with from the jwt module
-    getPublicKey: jwt.getPublicKey
+    getPublicKey: () => jwt.publicKey
 }
