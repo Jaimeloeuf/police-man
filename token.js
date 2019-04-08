@@ -21,7 +21,7 @@
 // Directly call apply_keys method to get create and verify token methods with key-pair baked in
 // const jwts = require('./jwt');
 // const jwt = jwts.apply_keys();
-const jwt = require('./jwt').apply_keys();
+const jwt = require('jwts').apply_keys();
 
 
 // This is a Express middleware for routes that require JWT security
