@@ -5,9 +5,9 @@
     but with added automatically generated asymmetric key-pair on startup.
 
     @TODO
-    - Update this module to allow users to split the use of create and verify token. Right now, this
-      module creates both functions for the user. Make it so that the user can just use verify, or
-      just use create. Not all services need both. For the unneeded parts, do not load the needed resources
+    - Create a global variable to store the current publicKey used, which will be set every time the
+      apply_keys function is ran or when the node-forge based publicKey generation function is ran.
+    - Try to move the wrapper functions from token module over to this module.
     - Create 1 Function to extract JWTs from header or token automatically.
     - Add a function to coerce Auth header to either all lower or upper case (No need if using Express)
         ^ Basically use a regex to specify all case-insensitive?
@@ -15,7 +15,6 @@
     - Write unit test for this module
     - Start implementing JWEs
     - Create interface or give option for the Public/Private key pair to be generated and changed repeatedly.
-
 
     If using the node-forge thing to gen public key from the private key, no need to expose the private
     keys because in the function of private key generation, can just insert the private key into

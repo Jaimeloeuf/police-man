@@ -30,13 +30,13 @@ const req = {
 
 function promise_version() {
     // Using the token module's API with Promises
-    create_token(req.token, {subject: 'bryan@gmail.com'})
+    create_token(req.token, { subject: 'bryan@gmail.com' })
         .then(token => {
             print(token);
             print(token.length);
             return token;
         })
-        .then((token) => verify_token(token, {subject: 'bryan@gmail.com'}))
+        .then((token) => verify_token(token, { subject: 'bryan@gmail.com' }))
         .then((token) => {
             print(token);
             print(token.role);
