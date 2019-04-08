@@ -33,10 +33,10 @@ const sign = promisify(jwt.sign);
 const verify = promisify(jwt.verify);
 
 
-// Promisified sign method curried
+// Promisified sign method curried. Resolves with signed JWT, else rejects with an error.
 var create_token = (private_key) => (signOption) => (payload) => sign(payload, private_key, signOption);
 
-// Promisified verify method curried
+// Promisified verify method curried. Resolves with the decoded token, else rejects with an error.
 var verify_token = (public_key) => (verifyOption) => (token) => verify(token, public_key, verifyOption);
 
 
@@ -60,6 +60,7 @@ function generateKeys() {
 }
 
 // Below test function implements features with node-forge package that isn't tested yet.
+// Attempt to create a function to forge a public key based on a private key?
 function test() {
     // convert PEM-formatted private key to a Forge private key
     const forgePrivateKey = forge.pki.privateKeyFromPem(privateKey);
@@ -74,38 +75,47 @@ function test() {
 
 
 // Function to apply keys to curried functions for partial applications with keys in their closures
+// function apply_keys() {
+//     const { publicKey, privateKey } = generateKeys();
+
+//     // Attach the publicKey generated to this function object for export later on
+//     this.publicKey = publicKey;
+
+//     /*  Partial application with the private key for Signing in its closure.
+//         Resolves with the signed JWT, else
+//         Rejects with an error.  */
+//     this.create_token = create_token(privateKey);
+
+//     /*  Partial application with the public key for verification in its closure.
+//         If signature is valid and the optional expiration, audience, or issuer are valid if given
+//         Resolves with the decoded token, else
+//         Rejects with an error.  */
+//     this.verify_token = verify_token(publicKey);
+
+//     // Return the public key for other services to use for verification, but let privateKey
+//     // be destroyed when this function ends, to prevent it from being shared or anything
+
+//     // Return the object with the new create and verify token methods with the publicKey
+//     return { publicKey, create_token: this.create_token, verify_token: this.verify_token };
+// }
+
+// Function to get a create and verify token method with Asymmetric Keys built into them.
 function apply_keys() {
+    /*  Generate Key pair and apply these keys into the curried functions' closure
+    
+        The public key is also returned, for use with other services, but the
+        privateKey will be destroyed along with this function scope when it ends.
+        
+        Return object with the new create and verify token methods with the Keys applied
+    */
     const { publicKey, privateKey } = generateKeys();
-
-    // Create an object to attach all things as properties to it as return value of the function
-    const export_object = { publicKey };
-
-    /*  Partial application with the private key for Signing in its closure.
-        Resolves with the signed JWT, else
-        Rejects with an error.  */
-    export_object.create_token = create_token(privateKey);
-
-    /*  Partial application with the public key for verification in its closure.
-        If signature is valid and the optional expiration, audience, or issuer are valid if given
-        Resolves with the decoded token, else
-        Rejects with an error.  */
-    export_object.verify_token = verify_token(publicKey);
-
-    // Return the public key for other services to use for verification, but let privateKey
-    // be destroyed when this function ends, to prevent it from being shared or anything
-
-    // Return the object with the new create and verify token methods with the publicKey
-    return export_object;
+    return {
+        publicKey,
+        create_token: create_token(privateKey),
+        verify_token: verify_token(publicKey)
+    };
 }
 
-// Apply keys into closures of the sign and verify functions and get back publicKey for verification
-// const publicKey = apply_keys();
-
-// Use the function to create create and verify token methods with keys in them
-const keys_applied = apply_keys();
-
-
-/* Add a function to forge a public key based on a private key? */
 
 /*  Pure function to extract token from request header and returns it
     FORMAT OF TOKEN --> Authorization: Bearer <access_token>
@@ -121,18 +131,18 @@ const extract_CSRF_token = (req) => req.headers['x-csrf-token'];
 
 
 module.exports = {
-    // The 2 promisified methods, Promisified with the Promisfy Util.
-    sign,
-    verify,
-
     // JWT and CSRF token extraction methods
     extract_jwt_in_header,
     extract_jwt_in_cookie,
     extract_CSRF_token,
 
-    // The 2 curried versions for token signing and verification with the key in their closures
+    // The 2 curried functions for token signing and verification
     create_token,
     verify_token,
+
+    /*  Function to generate a new key pair and apply it into the curried functions' closure.
+        Exporting the with the key in their closures */
+    apply_keys,
 
     // getPublicKey is exported for other modules/services to get latest public key to verify the JWT
     getPublicKey: () => publicKey
