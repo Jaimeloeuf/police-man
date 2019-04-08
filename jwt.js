@@ -8,6 +8,7 @@
     - Create a global variable to store the current publicKey used, which will be set every time the
       apply_keys function is ran or when the node-forge based publicKey generation function is ran.
     - Try to move the wrapper functions from token module over to this module.
+    - Do JsDocs for this module before publishing
     - Create 1 Function to extract JWTs from header or token automatically.
     - Add a function to coerce Auth header to either all lower or upper case (No need if using Express)
         ^ Basically use a regex to specify all case-insensitive?
@@ -31,12 +32,20 @@ const { promisify } = require('util');
 const sign = promisify(jwt.sign);
 const verify = promisify(jwt.verify);
 
+const merge = (o1) => (o2) => ({ ...o1, ...o2 });
+
 
 // Promisified sign method curried. Resolves with signed JWT, else rejects with an error.
-var create_token = (private_key) => (signOption) => (payload) => sign(payload, private_key, signOption);
+// const create_token = (private_key) => (signOption) => (payload) => sign(payload, private_key, signOption);
+// Promisified verify method curried. Resolves with the decoded token, else rejects with an error.
+// const verify_token = (public_key) => (verifyOption) => (token) => verify(token, public_key, verifyOption);
+
+
+// Promisified sign method curried. Resolves with signed JWT, else rejects with an error.
+const create_token = (private_key) => (signOption) => (payload, options = {}) => sign(payload, private_key, merge(signOption)(options));
 
 // Promisified verify method curried. Resolves with the decoded token, else rejects with an error.
-var verify_token = (public_key) => (verifyOption) => (token) => verify(token, public_key, verifyOption);
+const verify_token = (public_key) => (verifyOption) => (token, options = {}) => verify(token, public_key, merge(verifyOption)(options));
 
 
 // Function to generate the Public/Private key pairs.
@@ -72,31 +81,6 @@ function test() {
     const getPublicKey = (forgePrivateKey) => () => forge.pki.publicKeyToPem(forge.pki.setRsaPublicKey(forgePrivateKey.n, forgePrivateKey.e));
 }
 
-
-// Function to apply keys to curried functions for partial applications with keys in their closures
-// function apply_keys() {
-//     const { publicKey, privateKey } = generateKeys();
-
-//     // Attach the publicKey generated to this function object for export later on
-//     this.publicKey = publicKey;
-
-//     /*  Partial application with the private key for Signing in its closure.
-//         Resolves with the signed JWT, else
-//         Rejects with an error.  */
-//     this.create_token = create_token(privateKey);
-
-//     /*  Partial application with the public key for verification in its closure.
-//         If signature is valid and the optional expiration, audience, or issuer are valid if given
-//         Resolves with the decoded token, else
-//         Rejects with an error.  */
-//     this.verify_token = verify_token(publicKey);
-
-//     // Return the public key for other services to use for verification, but let privateKey
-//     // be destroyed when this function ends, to prevent it from being shared or anything
-
-//     // Return the object with the new create and verify token methods with the publicKey
-//     return { publicKey, create_token: this.create_token, verify_token: this.verify_token };
-// }
 
 // Function to get a create and verify token method with Asymmetric Keys built into them.
 function apply_keys() {

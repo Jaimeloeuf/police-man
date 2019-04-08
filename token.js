@@ -19,7 +19,8 @@
 
 // Dependencies
 // Directly call apply_keys method to get create and verify token methods with key-pair baked in
-const jwt = require('./jwt').apply_keys();
+const jwts = require('./jwt');
+const jwt = jwts.apply_keys();
 
 // Default JWT Signing options object
 var signOptions = {
@@ -43,13 +44,13 @@ var verifyOptions = {
 
 // Utility function for merging. Returns an object made by merging the 2 input objects
 // To Create another merge function for deep merge using lodash's merge module
-const merge = (o1) => (o2) => ({ ...o1, ...o2 });
+// const merge = (o1) => (o2) => ({ ...o1, ...o2 });
 
 /*  Partially apply options with merge function to get specialized functions with given options in
     the closure, to apply to another options object with properties the user wants to override.
     Bind these specialized functions to the original given options object's name */
-signOptions = merge(signOptions);
-verifyOptions = merge(verifyOptions);
+// signOptions = merge(signOptions);
+// verifyOptions = merge(verifyOptions);
 
 
 /*  Create new create and verify token functions in this namespace to export
@@ -57,8 +58,11 @@ verifyOptions = merge(verifyOptions);
     - Always merge with default options object to override properties if any are passed
       into the function by finnishing application with the partial application function.
     - The awaiting should be done by the function caller.   */
-const create_token = (payload, options = {}) => jwt.create_token(signOptions(options))(payload);
-const verify_token = (payload, options = {}) => jwt.verify_token(verifyOptions(options))(payload);
+// const create_token = (payload, options = {}) => jwt.create_token(signOptions(options))(payload);
+// const verify_token = (payload, options = {}) => jwt.verify_token(verifyOptions(options))(payload);
+const create_token = jwt.create_token(signOptions);
+const verify_token = jwt.verify_token(verifyOptions);
+
 
 
 /*  Token verification middleware:
