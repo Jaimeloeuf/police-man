@@ -28,22 +28,16 @@ const { promisify } = require('util');
 // Forge crypto package for node (https://www.npmjs.com/package/node-forge)
 // const forge = require('node-forge');
 
+
+// Super simple utility function for merging objects. Only shadow merging is needed.
+const merge = (o1) => (o2) => ({ ...o1, ...o2 });
+
 // Using the promisify method from the util module, Promisify the original jwt methods
 const sign = promisify(jwt.sign);
 const verify = promisify(jwt.verify);
 
-const merge = (o1) => (o2) => ({ ...o1, ...o2 });
-
-
-// Promisified sign method curried. Resolves with signed JWT, else rejects with an error.
-// const create_token = (private_key) => (signOption) => (payload) => sign(payload, private_key, signOption);
-// Promisified verify method curried. Resolves with the decoded token, else rejects with an error.
-// const verify_token = (public_key) => (verifyOption) => (token) => verify(token, public_key, verifyOption);
-
-
 // Promisified sign method curried. Resolves with signed JWT, else rejects with an error.
 const create_token = (private_key) => (signOption) => (payload, options = {}) => sign(payload, private_key, merge(signOption)(options));
-
 // Promisified verify method curried. Resolves with the decoded token, else rejects with an error.
 const verify_token = (public_key) => (verifyOption) => (token, options = {}) => verify(token, public_key, merge(verifyOption)(options));
 
@@ -67,20 +61,6 @@ function generateKeys() {
     });
 }
 
-// Below test function implements features with node-forge package that isn't tested yet.
-// Attempt to create a function to forge a public key based on a private key?
-function test() {
-    // convert PEM-formatted private key to a Forge private key
-    const forgePrivateKey = forge.pki.privateKeyFromPem(privateKey);
-    // get a Forge public key from the Forge private key
-    const forgePublicKey = forge.pki.setRsaPublicKey(forgePrivateKey.n, forgePrivateKey.e);
-    // convert the Forge public key to a PEM-formatted public key
-    const publicKey = forge.pki.publicKeyToPem(forgePublicKey);
-
-    // Given a private key, get a function that can generate a public key
-    const getPublicKey = (forgePrivateKey) => () => forge.pki.publicKeyToPem(forge.pki.setRsaPublicKey(forgePrivateKey.n, forgePrivateKey.e));
-}
-
 
 // Function to get a create and verify token method with Asymmetric Keys built into them.
 function apply_keys() {
@@ -100,24 +80,44 @@ function apply_keys() {
 }
 
 
-/*  Pure function to extract token from request header and returns it
-    FORMAT OF TOKEN --> Authorization: Bearer <access_token>
-    Split on space, get token from array and return it.
-    Express automatically coerces keys in the header object to be lowercase. */
-// Only for services where the JWT is passed in the Auth HTTP header
-const extract_jwt_in_header = (req) => req.headers['authorization'].split(' ')[1];
+// Attempt to create a function to forge a public key based on a private key using node-forge
+function forgeKey(privateKey) {
+    return function () {
+        // convert PEM-formatted private key to a Forge private key
+        const forgePrivateKey = forge.pki.privateKeyFromPem(privateKey);
+        // get a Forge public key from the Forge private key
+        const forgePublicKey = forge.pki.setRsaPublicKey(forgePrivateKey.n, forgePrivateKey.e);
+        // convert the Forge public key to a PEM-formatted public key
+        const publicKey = forge.pki.publicKeyToPem(forgePublicKey);
 
-// Only for web-apps where the JWT is passed as a cookie
-const extract_jwt_in_cookie = (req) => req.cookies.jwt;
-// Function for extracting CSRF token from the request from a web-app client
-const extract_CSRF_token = (req) => req.headers['x-csrf-token'];
+        return publicKey;
+
+        // Below is a curried version with arrow functions
+        // Given a private key, get a function that can generate a public key
+        // const getPublicKey = (forgePrivateKey) => () => forge.pki.publicKeyToPem(forge.pki.setRsaPublicKey(forgePrivateKey.n, forgePrivateKey.e));
+    }
+}
+
+
+const extract = {
+    // Only for services where the JWT is passed in the Auth HTTP header
+    /*  Pure function to extract token from request header and returns it
+        FORMAT OF TOKEN --> Authorization: Bearer <access_token>
+        Split on space, get token from array and return it.
+        Express automatically coerces keys in the header object to be lowercase. */
+    jwt_in_header: (req) => req.headers['authorization'].split(' ')[1],
+
+    // Only for web-apps where the JWT is passed as a cookie
+    jwt_in_cookie: (req) => req.cookies.jwt,
+
+    // Function for extracting CSRF token from the request from a web-app client
+    CSRF_token: (req) => req.headers['x-csrf-token'],
+}
 
 
 module.exports = {
-    // JWT and CSRF token extraction methods
-    extract_jwt_in_header,
-    extract_jwt_in_cookie,
-    extract_CSRF_token,
+    // All the token extraction related functions as 1 extraction object
+    extract,
 
     // The 2 curried functions for token signing and verification
     create_token,
