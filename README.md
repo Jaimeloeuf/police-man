@@ -1,29 +1,34 @@
-# README for Auth/User_accs service
+# Police Man
+This is a generic IAM (Identity and Access Management) micro-service that you can use in a plug and play manner with your existing backend micro-service architecture/solution.  
+Allowing you to create your own standalone identity provider just like if using google/facebook/github as identity providers.
 
+
+## For Identity management
 - This service handles all user logins/authentications and token provisioning.
-- The database owned by this service is a SQL based, relational DB, e.g. MariaDB
-- DB name is UserDB
-- Attributes in the "users" table
+- For demo purposes, the "db" used is a self built in memory key-value store.
+- You can rewrite the db module to use connect to any type of database as the user Identity database
+- An example for connecting to a MariaDB instance is given too in the DB directory
+- Suggested attributes in the "users" table
     - userID (username or their "email")
     - password
-    - salt
-    - user_state
-
+    - salt (If assuming BCrypt is used, the salt is together with the password)
+    - user_state (active/deactivated/deleted)
+    - Access rights / User roles
+    
+    
+## For Access management
+- This service handles all of the user's Access rights.
+- This service acts as the single source of truth about the user's roles.
+- Defines what each role is allowed, its access resource rights and everything.
 
 
 ## Design considerations
 
 ### Why email isn't used as the username
-
-Because of privacy reasons
-So every email can have a username attached to it and that username is changeable
-
-User can only log in with their username. This prevents people from logging in with email addresses if other sites are hacked
-
-Email can be user as the "username" or userID because this app is designed for use with the end user.
-So assuming the db is hacked, you cant really hide the email...
-
-*email = username = userID
+Because of privacy reasons, every email can have a username attached to it and that username is changeable, but not the email.  
+User can only log in with their username. This prevents people from logging in with email addresses if other sites are hacked.  
+Email can be used as the "username" or userID because this app is designed for use with the end user.
+So assuming the db is hacked, you cant really hide the email...  
 
 Info required for sign up:
 - username (unique)
@@ -41,6 +46,12 @@ User account state:
 - De-activated (Deleted data, but email still black listed for now, but username now free for others to use)
 
 
-## Features to implement
-- When the user have not logged in for some time, or the location is different, ask the user to do a 2FA for authentication purposes.
-- Delete user account, by removing all data and blacklisting the email.  -->  The row in the userDB should not be deleted, however it should be marked as (deleted) for the status attribute
+## Future features
+- MFA (Multi-Factor Authentication)
+	- Starting with SMS based 2FA
+	- Token based 2FA
+- When user logged out for some time, or location is different from the usual location, ask the user to do a 2FA before giving access.
+- Delete user account action
+	- By removing all user data and blacklisting the email.
+	- The row in the userDB should not be deleted, but marked as (deleted) for account status attribute.
+	- The associated data stored in the other userDB's should be deleted with the eventually consistence principle.
