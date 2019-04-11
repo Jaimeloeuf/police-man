@@ -22,7 +22,7 @@
 
 const bcrypt = require('bcryptjs');
 // Import in DB methods for reading and updating password hash from the db module
-const { get_hash, update_hash } = require('./db/db');
+const db = require('./db/db');
 
 /*  Cost factor variable - number of rounds used to generate the salt.
     Cost factor should be different for normal users VS admins.
@@ -31,12 +31,15 @@ const { get_hash, update_hash } = require('./db/db');
 */
 const cost_factor = 12;
 
+const bcrypt_hash = (cost_factor) => (password) => bcrypt.hash(password, cost_factor);
+// Partially apply the cost factor into the function
+const hash = bcrypt_hash(12);
 
 // Given userID and password, update hash in database with the new password hash.
 async function update_hash(userID, password) {  // Sequenced Async to function caller
     try {
         // Create the hash, insert it into the database and return the result of the insertion
-        return await db.update_hash(userID, await bcrypt.hash(password, cost_factor));
+        return await db.update_hash(userID, await hash(password));
     } catch (err) {
         // Log the error, either to error logs or to logging service
         console.error(err);
@@ -48,25 +51,24 @@ async function update_hash(userID, password) {  // Sequenced Async to function c
 
 // Given userID and password, update hash in database with the new password hash.
 // Sequenced Async to function caller
-const update_hash = async (userID, password) =>
-    new Promise((resolve, reject) => {
-        try {
-            /*  Create the hash, insert it into the database and return the result of the insertion
-                Note:    
-                - db.update_hash method Verifys if user with 'userID' exists first in the background
-                - Can potentially resolve with an error? If db.update_hash throws an error, will
-                it be caught by the try catch block? since the await call is made in the resolve param.
-            */
-            return resolve(await db.update_hash(userID, await bcrypt.hash(password, cost_factor)));
-        } catch (err) {
-            // Log the error, either to error logs or to logging service
-            console.error(err);
+// const update_hash = async (userID, password) =>
+//     new Promise((resolve, reject) => {
+//         try {
+//             /*  Create the hash, insert it into the database and return the result of the insertion
+//                 Note:    
+//                 - db.update_hash method Verifys if user with 'userID' exists first in the background
+//                 - Can potentially resolve with an error? If db.update_hash throws an error, will
+//                 it be caught by the try catch block? since the await call is made in the resolve param.
+//             */
+//             return resolve(await db.update_hash(userID, await bcrypt.hash(password, cost_factor)));
+//         } catch (err) {
+//             // Log the error, either to error logs or to logging service
+//             console.error(err);
 
-            // If the hashing DB update_hash method failed, return error to function caller
-            return reject(err);
-        }
-    });
-
+//             // If the hashing DB update_hash method failed, return error to function caller
+//             return reject(err);
+//         }
+//     });
 
 
 /*  Function verifies a given set of credentials to return a promise that
@@ -74,16 +76,24 @@ const update_hash = async (userID, password) =>
     Rejects with 'ERR: Wrong password' if the password was invalid
     Rejects with error code from async function calls if either the DB or BCrypt action fails.
 */
-const verify_credentials = async (userID, password) =>
-    new Promise((resolve, reject) => {
+// const verify_credentials = async (userID, password) =>
+async function verify_credentials(userID, password) {
+    return new Promise((resolve, reject) => {
         try {
             // Get the whole user object from the DB
-            const user = await db.get_user(userID);
+            const user = db.get_user(userID);
+
+            bcrypt.compare(password, user.hash)
+                .then(console.log)
+                .catch(console.log);
+            // Because hash from DB is invalid Bcrypt string
+            // Also may mean the password passed in to dis function is bad
+
             // If the password is correct, return the user Object
-            if (await bcrypt.compare(password, user.hash))
-                return resolve(user);
-            else
-                return reject('ERR: Wrong password'); // Reject with error
+            // if (bcrypt.compare(password, user.hash))
+            //     return resolve(user);
+            // else
+            //     return reject('ERR: Wrong password'); // Reject with error
 
 
             // Below is the old method, which only verifies if the password is correct
@@ -102,9 +112,10 @@ const verify_credentials = async (userID, password) =>
             return reject(err);
         }
     });
-
+}
 
 module.exports = {
+    hash,
     verify_credentials,
     update_hash
 }
