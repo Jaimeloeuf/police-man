@@ -75,7 +75,7 @@ function attach_token(req, res, next) {
 router.post('/login', express.json(), authenticate, attach_token);
 router.post('/tokens', express.json(), authenticate, attach_token);
 // See if the below format is possible to combine the above 2 routes
-router.post('/(tokens | login)', express.json(), authenticate, attach_token);
+// router.post('/(tokens | login)', express.json(), authenticate, attach_token);
 
 
 // Route to get a new JWT with a complimentary refresh token

@@ -63,5 +63,5 @@ module.exports = {
     verify_token: jwt.verify_token(verifyOptions),
 
     // Directly re-export method for getting public key from the jwt module
-    getPublicKey: jwt.publicKey
+    getPublicKey: jwt.getPublicKey
 }

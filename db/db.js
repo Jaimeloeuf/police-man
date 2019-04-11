@@ -12,8 +12,8 @@ const auth = require('../auth');
 
 // User DB will be a object, to simulate a key-value pair store or Document DB
 const userDB = {
-    user1: {
-        username: 'Jaime',
+    Jaime: {
+        userID: 'Jaime',
         hash: 'uoouoio' // Assuming hash is a BCrypt hash with salt built into the hash
     }
 };
@@ -48,7 +48,7 @@ function new_user(user) {
         // Log it out as a debug
         console.log(userDB);
 
-        resolve(); // Resolves without anything to end the Promise.
+        return resolve(); // Resolves without anything to end the Promise.
     });
 }
 

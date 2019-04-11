@@ -24,6 +24,7 @@ const express = require('express');
 const router = express.Router();
 const { verify_token } = require('../token');
 const db = require('../db/db');
+const { print } = require('../utils');
 
 // Next function is not needed, as it will be called automatically by express
 async function jwt_mw(req, res) {
@@ -40,17 +41,29 @@ async function jwt_mw(req, res) {
 }
 
 // (READ) Route to get the user object back from the DB
-router.get('/:userID', (req, res) => {
+router.get('/:userID', async (req, res) => {
     const { userID } = req.params;
 
-    db.get_user(userID)
-        .then(res.json)
-        .catch(error => res.status(error.code).send(error.message)); // Expects error thrown to be an object
+    try {
+        const user = await db.get_user(userID);
+
+        // Delete the hash before sending user object back to client
+        delete user.hash;
+
+        res.json(user);
+    } catch (err) {
+        res.status(500).send(error.message);
+    }
 });
 
-// (READ) Route to get the user object back from the DB
-router.get('/:userID', (req, res) => {
-    res.json({ userID: req.params.userID });
+// Route to create a new user
+router.post('/new', express.json({ limit: "1kb" }), async (req, res) => {
+    try {
+        await db.new_user(req.body);
+        res.status(201).end();
+    } catch (err) {
+        res.status(500).end(err);
+    }
 });
 
 module.exports = router;
