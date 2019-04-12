@@ -36,7 +36,7 @@ async function authenticate(req, res, next) {
         // Verify credentials to get the user object back and attach to req object to use downstream
         req.user = await auth.verify_credentials(req.body.userID, req.body.pass);
 
-        // Can I not call next? Will it be called automatically?
+        // Call the next middleware
         next();
         
     } catch (err) {
@@ -52,11 +52,12 @@ async function authenticate(req, res, next) {
 }
 
 // Middleware function for creating JWT payload for the client, creating and signing the JWT and finally attaching it for the user to use
-function attach_token(req, res, next) {
-    // res.json(req.user).end();
-
+async function attach_token(req, res, next) {
     // Base on the results by the authenticate middleware create a token for the user
-    const token = create_token(req.user);
+    const token = await create_token(req.user);
+
+    console.log(token);
+    res.end(token);
 
     // Attach token to res object differently based on request client type.
     //  If browser client, set token into cookie. Else if service or native app, put in auth header
