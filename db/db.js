@@ -8,7 +8,7 @@
     - Make userID to use email instead
 */
 
-const auth = require('../auth');
+const hash = require('../hash');
 
 // User DB will be a object, to simulate a key-value pair store or Document DB
 const userDB = {
@@ -38,7 +38,7 @@ function new_user(user) {
             return reject(new Error('ERR: User already exists'));
 
         // Create the hash of the user object
-        user.hash = await auth.hash(user.password);
+        user.hash = await hash(user.password);
         // Remove the password from the user object
         delete user.password;
 

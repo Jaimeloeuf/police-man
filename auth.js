@@ -21,19 +21,9 @@
 */
 
 const bcrypt = require('bcryptjs');
+const hash = require('./hash');
 // Import in DB methods for reading and updating password hash from the db module
-// const db = require('./db/db');
-
-/*  Cost factor variable - number of rounds used to generate the salt.
-    Cost factor should be different for normal users VS admins.
-    Admins cost factor should be around 14
-    @Todo read from elsewhere and not pre-defined
-*/
-const cost_factor = 12;
-
-const bcrypt_hash = (cost_factor) => (password) => bcrypt.hash(password, cost_factor);
-// Partially apply the cost factor into the function
-const hash = bcrypt_hash(12);
+const db = require('./db/db');
 
 // Given userID and password, update hash in database with the new password hash.
 async function update_hash(userID, password) {  // Sequenced Async to function caller
@@ -76,12 +66,9 @@ async function update_hash(userID, password) {  // Sequenced Async to function c
     Rejects with 'ERR: Wrong password' if the password was invalid
     Rejects with error code from async function calls if either the DB or BCrypt action fails.
 */
-
-const print = console.log;
 const verify_credentials = (userID, password) =>
     new Promise(async (resolve, reject) => {
         try {
-            const db = require('./db/db');
             // Get the whole user object from the DB
             const user = await db.get_user(userID);
 
@@ -105,7 +92,6 @@ const verify_credentials = (userID, password) =>
     });
 
 module.exports = {
-    hash,
     verify_credentials,
     update_hash
 }
