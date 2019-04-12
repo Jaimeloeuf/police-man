@@ -37,10 +37,13 @@ async function authenticate(req, res, next) {
         req.user = await auth.verify_credentials(req.body.userID, req.body.pass);
 
         // Can I not call next? Will it be called automatically?
-        // next();
+        next();
         
     } catch (err) {
         // Log the error
+
+        // console.error('Err out in auth md')
+        console.error(err);
 
         // End this req/res cycle with a failed code for 'unauthorized'
         res.status(401).send(err);
@@ -50,6 +53,8 @@ async function authenticate(req, res, next) {
 
 // Middleware function for creating JWT payload for the client, creating and signing the JWT and finally attaching it for the user to use
 function attach_token(req, res, next) {
+    // res.json(req.user).end();
+
     // Base on the results by the authenticate middleware create a token for the user
     const token = create_token(req.user);
 

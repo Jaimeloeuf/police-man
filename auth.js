@@ -22,7 +22,7 @@
 
 const bcrypt = require('bcryptjs');
 // Import in DB methods for reading and updating password hash from the db module
-const db = require('./db/db');
+// const db = require('./db/db');
 
 /*  Cost factor variable - number of rounds used to generate the salt.
     Cost factor should be different for normal users VS admins.
@@ -76,31 +76,22 @@ async function update_hash(userID, password) {  // Sequenced Async to function c
     Rejects with 'ERR: Wrong password' if the password was invalid
     Rejects with error code from async function calls if either the DB or BCrypt action fails.
 */
-// const verify_credentials = async (userID, password) =>
-async function verify_credentials(userID, password) {
-    return new Promise((resolve, reject) => {
-        try {
-            // Get the whole user object from the DB
-            const user = db.get_user(userID);
 
-            bcrypt.compare(password, user.hash)
-                .then(console.log)
-                .catch(console.log);
-            // Because hash from DB is invalid Bcrypt string
-            // Also may mean the password passed in to dis function is bad
+const print = console.log;
+const verify_credentials = (userID, password) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const db = require('./db/db');
+            // Get the whole user object from the DB
+            const user = await db.get_user(userID);
 
             // If the password is correct, return the user Object
-            // if (bcrypt.compare(password, user.hash))
-            //     return resolve(user);
-            // else
-            //     return reject('ERR: Wrong password'); // Reject with error
-
+            if (await bcrypt.compare(password, user.hash))
+                return resolve(user);
+            else
+                return reject('ERR: Wrong password'); // Reject with error
 
             // Below is the old method, which only verifies if the password is correct
-            // const hash_from_db = await db.get_hash(userID);
-            // return await bcrypt.compare(password, hash_from_db);
-
-            // Single line call of the above old method
             // return await bcrypt.compare(password, await db.get_hash(userID));
         } catch (err) {
             // If the database throws an error or if Bcrypt throws error when comparison fails
@@ -112,7 +103,6 @@ async function verify_credentials(userID, password) {
             return reject(err);
         }
     });
-}
 
 module.exports = {
     hash,
