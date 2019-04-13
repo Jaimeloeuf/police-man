@@ -63,7 +63,7 @@ async function update_hash(userID, password) {  // Sequenced Async to function c
 
 /*  Function verifies a given set of credentials to return a promise that
     Resolves with the user object if verified to be correct
-    Rejects with 'ERR: Wrong password' if the password was invalid
+    Rejects with 'Wrong password' if the password was invalid
     Rejects with error code from async function calls if either the DB or BCrypt action fails.
 */
 const verify_credentials = (userID, password) =>
@@ -71,18 +71,18 @@ const verify_credentials = (userID, password) =>
         try {
             // Get the whole user object from the DB
             const user = await db.get_user(userID);
-
+            
             // If the password is correct, return the user Object
             if (await bcrypt.compare(password, user.hash))
                 return resolve(user);
-            else
-                return reject('ERR: Wrong password'); // Reject with error
-
-            // Below is the old method, which only verifies if the password is correct
-            // return await bcrypt.compare(password, await db.get_hash(userID));
+            else {
+                // If the password is incorrect, create an error object and reject with it
+                const err = new Error('Wrong password');
+                err.code = 401;
+                return reject(err);
+            }
         } catch (err) {
-            // If the database throws an error or if Bcrypt throws error when comparison fails
-            // Reject with the error
+            // If db or Bcrypt throws other errors, reject with the error
             return reject(err);
         }
     });

@@ -17,6 +17,9 @@
     'tokens' and 'login' routes are both used for exchanging Credentials for JWTs
     When user is on the login page, the creds. should be posted to the /login route
     When user is not on the login page but wants to post creds. for JWTs, then the /token route should be used instead
+
+    @Todo
+    - See how to revoke tokens or tokens in browser cookies
 */
 
 const express = require('express');
@@ -25,24 +28,17 @@ const auth = require('../auth');
 const { create_token, verify_token } = require('../token');
 
 // Middleware function for authenticating Credentials against Database credentials for user Object
+// Once authenticated, user object will be attached to the req object, else err object will be passed to error handling middleware
 async function authenticate(req, res, next) {
-    /*  Expected JSON posted from client: {
-            userID: "Unique User ID, or can be the username also",
-            pass: "Password for the user with 'userID'"
-        }   */
+    // Expected JSON from client: { userID: "Unique userID", pass: "Password for this user" }
     try {
-        // Verify credentials to get the user object back and attach to req object to use downstream
+        // Verify credentials to get user object back and attach to req object to use downstream
         req.user = await auth.verify_credentials(req.body.userID, req.body.pass);
 
         // Call the next middleware
         next();
     } catch (err) {
-        // Log the error
-
-        // Set statusCode to 404, user resource not found
-        res.status(404);
-
-        // Passing the error to the error handling middleware instead of dealing with it here.
+        // Passing error to error handling middleware to deal with it.
         next(err);
     }
 }
@@ -52,19 +48,18 @@ async function attach_token(req, res, next) {
     // Base on the results by the authenticate middleware create a token for the user
     const token = await create_token(req.user);
 
-    console.log(token);
-    res.end(token);
-
     // Attach token to res object differently based on request client type.
-    //  If browser client, set token into cookie. Else if service or native app, put in auth header
+    // If browser client, set token into cookie. Else if service or native app, put in auth header
     if (req.header.type === 'browser') // Make a Regex Search or use a package for this
     {
-
+        res.header['Set-cookie'] = token;
     }
     else { // If service or native apps
         res.header['Authorization'] = token;
     }
-    //  See how to revoke tokens or revoke cookies that is sent by the browser
+
+    // Temporary end cycle statement with the token in the body
+    res.end(token);
 }
 
 /*  @Code-flow

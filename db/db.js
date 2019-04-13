@@ -23,8 +23,12 @@ function get_user(userID) {
     return new Promise((resolve, reject) => {
         if (userDB[userID])
             return resolve(userDB[userID]);
-        else
-            return reject(new Error('ERR: User does not exist'));
+        else {
+            // If user does not exist, create an error object and reject with it
+            const err = new Error('User does not exist');
+            err.code = 404;
+            return reject(err);
+        }
     });
 }
 
@@ -35,7 +39,7 @@ function new_user(user) {
 
         // Check if the user with user.userID currently exists or not.
         if (userDB[user.userID])
-            return reject(new Error('ERR: User already exists'));
+            return reject(new Error('User already exists'));
 
         // Create the hash of the user object
         user.hash = await hash(user.password);
