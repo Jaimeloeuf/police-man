@@ -20,10 +20,10 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "express": "^4.16.4",
-    "jwts": "^1.1.2",
+    "jwts": "^1.2.0",
     "mariadb": "^2.0.3"
   },
   "devDependencies": {
-    "mocha": "^6.1.1"
+    "mocha": "^6.1.3"
   }
 }

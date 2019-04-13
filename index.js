@@ -98,6 +98,7 @@ app.use((err, req, res, next) => {
     // Log error either to error logs or to a logging service
     console.error(err.stack);
 
+    // Make sure that the status code is an error code
     if (res.statusCode < 400)
         res.status(err.code || 500);
 
@@ -105,7 +106,6 @@ app.use((err, req, res, next) => {
     res.end();
 
     // Should the error message or something like below be sent back to the user?
-    // res.end('Something broke!');
 });
 
 app.listen(port, () => print(`Server listening to port ${port}`));
