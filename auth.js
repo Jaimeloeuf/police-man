@@ -82,10 +82,6 @@ const verify_credentials = (userID, password) =>
             // return await bcrypt.compare(password, await db.get_hash(userID));
         } catch (err) {
             // If the database throws an error or if Bcrypt throws error when comparison fails
-
-            // Log the error, either to log file or to logging service
-            console.error(err);
-
             // Reject with the error
             return reject(err);
         }
