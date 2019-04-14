@@ -15,13 +15,19 @@
         If update successful, redirect user to the login page
         else, store the hash temporarily and keep retrying, and in mean time, email user about failure,
         and inform about potential need to reset password again.
+
+    If the user forgets pasword, he/she can reset it
+    If the user wants to reset password, does it goes thru same procedure as the
+    forget password one??
 */
 
 const express = require('express');
 const router = express.Router();
+const { print } = require('../utils');
+const auth = require('../auth');
 
 // POST email/userID to this route to request for a email password reset
-router.post('/user/forget-password', (req, res, next) => {
+router.post('/user/forget-password', (req, res) => {
     /*  Read the email/userID from the body.
         Use express.json with size limit before rejecting request as this is a public route
         Expected JSON in request body:  { "userID": ... }   */
@@ -50,24 +56,28 @@ router.post('/user/forget-password', (req, res, next) => {
         create_token()
 
         // Make a AJAX call to the mail service and end the request
-        
+
     }
 });
 
 // Route to reset the password after getting the token in the email
-router.get('/auth/reset-password/:token', (req, res, next) => {
-   // Verify token's authenticity and validity (By checking signature and expire time)
-   
-   // Put the token into the Set-Cookie header
-   /* Can we go use a cookie module, to deal with the cookie parsing and the setting */
+router.get('/auth/reset-password/:token', (req, res) => {
+    // Verify token's authenticity and validity (By checking signature and expire time)
 
-   // Generate the reset password page with the userID in the token and end response
+    // Put the token into the Set-Cookie header
+    /* Can we go use a cookie module, to deal with the cookie parsing and the setting */
+
+    // Generate the reset password page with the userID in the token and end response
 });
 
 // API endpoint for posting the new credentials
 // This time round the tmp token is in the cookies
-router.post('/auth/reset-password', (req, res, next) => {
+router.post('/auth/reset-password', express.json({ limit: "1kb" }), async (req, res, next) => {
     // Using the userID in the token, retrieve password hash from database
+
+    auth.update_hash(req.body.userID, req.body.pass)
+        .then(() => res.end())
+        .catch(next)
 
     // Make sure new password hash is different
 })

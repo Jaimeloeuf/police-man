@@ -9,13 +9,14 @@
 */
 
 const hash = require('../hash');
+const { print } = require('../utils');
 
 // User DB will be a object, to simulate a key-value pair store or Document DB
 const userDB = {
-    Jaime: {
-        userID: 'Jaime',
-        hash: 'uoouoio' // Assuming hash is a BCrypt hash with salt built into the hash
-    }
+    // Jaime: {
+    //     userID: 'Jaime',
+    //     hash: 'uoouoio' // Assuming hash is a BCrypt hash with salt built into the hash
+    // }
 };
 
 // Get user object given a userID
@@ -56,8 +57,32 @@ function new_user(user) {
     });
 }
 
+function update_hash(userID, password) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // If user with userID does not exists, throw error
+            if (!userDB[userID]) {
+                const err = new Error('User does not exist');
+                err.code = 404;
+                return reject(err);
+            }
+
+            // Create and insert new hash into the database
+            userDB[userID].hash = await hash(password);
+
+            // Log it out as a debug
+            console.log(userDB);
+
+            return resolve(true); // Resolves with True to indicate success
+        } catch (err) {
+            return reject(err);
+        }
+    });
+}
+
 
 module.exports = {
     get_user,
-    new_user
+    new_user,
+    update_hash
 }
