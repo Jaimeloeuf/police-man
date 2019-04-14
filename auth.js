@@ -26,23 +26,6 @@ const hash = require('./hash');
 const db = require('./db/db');
 
 
-// Given userID and password, update hash in database with the new password hash.
-// Sequenced Async to function caller
-const update_hash = (userID, password) =>
-    new Promise(async (resolve, reject) => {
-        try {
-            // Create the hash and insert into the database, and return result of the update
-            // db.update_hash method Verifys if user with 'userID' exists first in the background
-            return resolve(await db.update_hash(userID, password));
-        } catch (err) {
-            // If the error code has not been set, consider it a Server error
-            if (!err.code)
-                err.code = 500;
-            return reject(err);
-        }
-    });
-
-
 /*  Function verifies a given set of credentials to return a promise that
     Resolves with the user object if verified to be correct
     Rejects with 'Wrong password' if the password was invalid
@@ -70,6 +53,5 @@ const verify_credentials = (userID, password) =>
     });
 
 module.exports = {
-    verify_credentials,
-    update_hash
+    verify_credentials
 }

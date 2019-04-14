@@ -21,10 +21,11 @@
     forget password one??
 */
 
+
 const express = require('express');
 const router = express.Router();
-const { print } = require('../utils');
-const auth = require('../auth');
+const db = require('../db/db');
+
 
 // POST email/userID to this route to request for a email password reset
 router.post('/user/forget-password', (req, res) => {
@@ -60,6 +61,7 @@ router.post('/user/forget-password', (req, res) => {
     }
 });
 
+
 // Route to reset the password after getting the token in the email
 router.get('/auth/reset-password/:token', (req, res) => {
     // Verify token's authenticity and validity (By checking signature and expire time)
@@ -70,16 +72,18 @@ router.get('/auth/reset-password/:token', (req, res) => {
     // Generate the reset password page with the userID in the token and end response
 });
 
+
 // API endpoint for posting the new credentials
 // This time round the tmp token is in the cookies
 router.post('/auth/reset-password', express.json({ limit: "1kb" }), async (req, res, next) => {
     // Using the userID in the token, retrieve password hash from database
 
-    auth.update_hash(req.body.userID, req.body.pass)
+    db.update_hash(req.body.userID, req.body.pass)
         .then(() => res.end())
         .catch(next)
 
     // Make sure new password hash is different
 })
+
 
 module.exports = router;
