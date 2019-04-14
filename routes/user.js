@@ -40,30 +40,47 @@ async function jwt_mw(req, res) {
     }
 }
 
+
+/*
+
+/user/authenticate
+/user/logout
+
+*/
+
 // (READ) Route to get the user object back from the DB
-router.get('/:userID', async (req, res) => {
-    const { userID } = req.params;
+// router.get('/:userID', async (req, res) => {
+//     const { userID } = req.params;
 
-    try {
-        const user = await db.get_user(userID);
+//     try {
+//         const user = await db.get_user(userID);
 
-        // Delete the hash before sending user object back to client
-        delete user.hash;
+//         // Delete the hash before sending user object back to client
+//         delete user.hash;
 
-        res.json(user);
-    } catch (err) {
-        res.status(500).send(error.message);
-    }
+//         res.json(user);
+//     } catch (err) {
+//         next(err);
+//     }
+// });
+
+// (READ) Route to get the user object back from the DB
+router.get('/:userID', (req, res) => {
+    db.get_user(req.params.userID)
+        .catch((user) => {
+            // Delete the hash before sending user object back to client
+            delete user.hash;
+
+            res.json(user);
+        })
+        .catch(next); // If read user failed, pass err to error handling middleware
 });
 
 // Route to create a new user
-router.post('/new', express.json({ limit: "1kb" }), async (req, res) => {
-    try {
-        await db.new_user(req.body);
-        res.status(201).end();
-    } catch (err) {
-        res.status(500).end(err);
-    }
+router.post('/new', express.json({ limit: "1kb" }), (req, res, next) => {
+    db.new_user(req.body)
+        .then(() => res.status(201).end()) // End the request with a "Resource created" code if successful
+        .catch(next); // If creation failed, pass err to error handling middleware
 });
 
 module.exports = router;
