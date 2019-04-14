@@ -12,14 +12,7 @@ const app = express();
 const port = 3000;
 const { print } = require('./utils');
 const { getPublicKey } = require('./token');
-
 // Finalhandler module to deal with responding back to the client and closing the connection
-
-
-/* Mount all the routers from the route modules onto the Express app */
-app.use('/user', require('./routes/user'));
-app.use(require('./routes/tokens'));
-// app.use(require('./routes/reset_password'));
 
 
 // var counter = 0;
@@ -30,8 +23,15 @@ app.use(require('./routes/tokens'));
 /*
     When u call next without any arguements, it will run the next middleware that matches route
     When called with 1 arguement, it will run the next middleware that has 4 arguements, which is
-    the err, req, res, next middleware. That 1 arguement will be treated as the error.
+    the err, req, res, next middleware. That 1 arguement will be treated as the error object.
 */
+
+
+/* Mount all the routers from the route modules onto the Express app */
+app.use('/user', require('./routes/user'));
+app.use(require('./routes/tokens'));
+app.use(require('./routes/reset_password'));
+
 
 // Route to get public key for verifying JWTs signed by complimenting private key.
 // Might move the key storage to a centralized publicKey store in the future
@@ -93,6 +93,8 @@ app.use((req, res) => {
     res.status(401);
     // Call the next function with the err object
     next(err);
+
+    Note that an Error status code set with res.status() method will have precedence over err.code
 */
 app.use((err, req, res, next) => {
     // Log error either to error logs or to a logging service
