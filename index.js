@@ -37,6 +37,7 @@ app.use(require('./routes/reset_password'));
 // Might move the key storage to a centralized publicKey store in the future
 app.get('/public-key', (req, res) => res.end(getPublicKey()));
 
+
 // Ping Route to check server status
 app.get('/ping', (req, res) => {
 	/*	Things to return to client
@@ -50,36 +51,34 @@ app.get('/ping', (req, res) => {
     });
 });
 
-/* Since this is the last non-error-handling middleware used, we assume 404, as nothing else responded.
-$ curl http://localhost:3000/notfound
-$ curl http://localhost:3000/notfound -H "Accept: application/json"
-$ curl http://localhost:3000/notfound -H "Accept: text/plain" */
 
-// 404 route handler
+// 404 Handler for different type of requests
 app.use((req, res) => {
-    // Log error either to error logs or to a logging service
-    res.status(404).send("Sorry can't find that!");
+    // Wrap in try/catch so if rendering/send fails, 500 error middleware is called
+    try {
+        // Log error either to error logs or to a logging service
+
+        // Set status to indicate resource not found
+        res.status(404);
+
+
+        /* Since this is the last non-error-handling middleware used, we assume 404, as nothing else matched/responded.
+        $ curl http://localhost:3000/notfound
+        $ curl http://localhost:3000/notfound -H "Accept: application/json"
+        $ curl http://localhost:3000/notfound -H "Accept: text/plain" */
+
+        if (req.accepts('html')) // Use templating engine to generate and respond with html page
+            res.render('404', { url: req.url });
+
+        else if (req.accepts('json')) // respond with json for S.P.A / P.W.A
+            res.send({ error: 'Not found' });
+
+        else // defaults to plain-text representation of the HTTP code
+            res.sendStatus(404);
+    } catch (err) {
+        next(err);
+    }
 });
-
-// 404 Handler using templating engine for HTML response
-// app.use((req, res) => {
-//     res.status(404);
-
-//     // respond with html page
-//     if (req.accepts('html')) {
-//         res.render('404', { url: req.url });
-//         return;
-//     }
-
-//     // respond with json
-//     if (req.accepts('json')) {
-//         res.send({ error: 'Not found' });
-//         return;
-//     }
-
-//     // default to plain-text. send()
-//     res.type('txt').send('Not found');
-// });
 
 
 /*  500 internal server error route handler
