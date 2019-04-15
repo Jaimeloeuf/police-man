@@ -1,8 +1,8 @@
 'use strict'; // Enforce use of strict verion of JavaScript
 
 /*	@Doc Module description:
-    - This module wraps over the jwt module to apply sign and verify options into the methods
-      the jwt module before exporting the functions returned by these partial applications.
+    - This module wraps over the jwt module to apply the default sign and verify options into
+      the methods of the jwts module before exporting these partial applications.
     - User to specify the sign and verify options directly in this module for every service
     - The DEFAULT OPTIONS MUST BE DEFINED, and they must be defined inside this module
     - Essentially the sign and verify options specific to this service is defined here
@@ -19,8 +19,6 @@
 
 // Dependencies
 // Directly call apply_keys method to get create and verify token methods with key-pair baked in
-// const jwts = require('./jwt');
-// const jwt = jwts.apply_keys();
 const jwt = require('jwts').apply_keys();
 
 
@@ -29,14 +27,18 @@ function get_token(req, res, next) {
     // Save token for subsequent functions to access token with request object after this middleware
     req.token = jwt.extract_jwt_in_header(req);
     // End the req/res cycle if no token is sent
-    if (typeof req.token === 'undefined')
-        res.status(401).end(''); // If token does not exist or not sent over, respond with a 401 auth-token not provided
+    if (typeof req.token === 'undefined') {
+        // Use 401 auth-token not provided, if token not received
+        const err = new Error('Token expected');
+        err.code = 401;
+        next(err);
+    }
     // ^To update the response message, either with a 401 HTML page or smth
 }
 
 // Default JWT Signing options object
 const signOptions = {
-    issuer: 'Mysoft corp',
+    issuer: 'police-man',
     subject: 'some@user.com',
     // audience: 'https://Promist.io',
     audience: ['https://Promist.io', '.... all the services names'],
@@ -46,7 +48,7 @@ const signOptions = {
 
 // Default JWT Verification options object
 const verifyOptions = {
-    issuer: 'Mysoft corp',
+    issuer: 'police-man',
     subject: 'some@user.com',
     // audience: 'https://Promist.io',
     audience: ['https://Promist.io', '.... all the services names'],
