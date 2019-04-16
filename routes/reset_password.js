@@ -25,51 +25,57 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db/db');
+const { create_token, verify_token } = require('../token');
 
 
 // POST email/userID to this route to request for a email password reset
-router.post('/user/forget-password', (req, res) => {
+router.post('/user/forget-password', async (req, res, next) => {
     /*  Read the email/userID from the body.
         Use express.json with size limit before rejecting request as this is a public route
         Expected JSON in request body:  { "userID": ... }   */
     let { userID } = req.body;
 
-    // Get the user object from the DB about this user
-    /* Since we are talking about a userObject, would a NoSQL database be better?
-    SQL DB vs NoSQL DB in terms of speed? One need to look through everything, one have direct address access */
-    const user = db.getUser(userID);
-
-    if (user) {
-        // If the user actually exists and the returned user object is not null
+    try {
+        // Get the user object from the DB about this user
+        const user = await db.get_user(userID);
 
         // Generate a temporary token and send to the user's email
-        const token = create_token({
-            // Sign option here
-            // Allocate the 10 mins expiriy time here too
-        })({
+        const token = await create_token({
             // Payload here
             userID,
-            token_type: 'tmp-identity-token',
-            permissions: 'reset-password'
+            token_type: 'reset-password-identity-token',
+            permissions: 'reset-password',
+
+        }, {
+                // Override these default options
+                expiresIn: '15m',
+                subject:
         });
 
         // Generate token for this service for accessing the mail service
-        create_token()
+        // await create_token()
 
         // Make a AJAX call to the mail service and end the request
 
+    } catch (err) {
+        next(err);
     }
 });
 
 
 // Route to reset the password after getting the token in the email
-router.get('/auth/reset-password/:token', (req, res) => {
-    // Verify token's authenticity and validity (By checking signature and expire time)
+router.get('/auth/reset-password/:token', async (req, res, next) => {
+    try {
+        // Verify token's authenticity and validity (By checking signature and expire time)
+        const decoded_token = await verify_token(req.params.token);
 
-    // Put the token into the Set-Cookie header
-    /* Can we go use a cookie module, to deal with the cookie parsing and the setting */
+        // Put the token into the Set-Cookie header
+        /* Can we go use a cookie module, to deal with the cookie parsing and the setting */
 
-    // Generate the reset password page with the userID in the token and end response
+        // Generate the reset password page with the userID in the token and end response     
+    } catch (err) {
+        next(err);
+    }
 });
 
 
