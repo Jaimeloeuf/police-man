@@ -27,16 +27,15 @@ const db = require('../db/db');
 const { print } = require('../utils');
 
 // Next function is not needed, as it will be called automatically by express
-async function jwt_mw(req, res) {
+async function jwt_mw(req, res, next) {
     try {
         // Verify that token is valid and replace the token in request object with this one
         // Can we use a cookie parser to get the token into the request object instead
         req.token = await verify_token(req.token);
     } catch (err) {
-        // Log error to error file or logging service
-
-        // End the request
-        res.status(401).end();
+        /* See if the err thrown by verify token already set the code */
+        err.code = 401;
+        next(err);
     }
 }
 
