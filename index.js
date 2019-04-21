@@ -14,11 +14,18 @@ const { print } = require('./utils');
 const { getPublicKey } = require('./token');
 // Finalhandler module to deal with responding back to the client and closing the connection
 
+// Function to return the uptime in ms
+const uptime = ((start_time) => () => Date.now() - start_time)(Date.now());
 
-// var counter = 0;
-// // At end of all routes, print the counter value out again.
-// app.all('*', (req, res, next) => ++counter);
-// app.use((req, res) => ++counter);
+const counter = function() {
+    this.value = 0;
+    this.count = () => ++this.value;
+}
+app.use((req, res) => counter.count());
+
+var counter = 0;
+app.use(() => ++counter);
+counter
 
 /*
     When u call next without any arguements, it will run the next middleware that matches route
@@ -47,7 +54,9 @@ app.get('/ping', (req, res) => {
     res.json({
         status: 200,
         // Current server response latency of the /ping request
-        // latency: get_current_latency()
+        // latency: (Date.now() - req.start_time)
+        req_counts: counter.value,
+        uptime: uptime()
     });
 });
 

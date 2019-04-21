@@ -4,9 +4,6 @@ FROM node
 
 EXPOSE 80
 
-# Maintainer for this Dockerfile
-MAINTAINER jaimeloeuf@gmail.com
-
 # Create app directory and set as working directory
 WORKDIR /app
 
@@ -17,9 +14,7 @@ COPY package*.json /app
 RUN npm install
 # RUN npm install --only=production
 
-# Bundle app source
-COPY . /app
-# Test if the below works too
+# Bundle app source into the current working directory
 # COPY . .
 
 # Run node server with "npm start" to use the start script specified in package.json
