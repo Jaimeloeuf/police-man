@@ -54,11 +54,12 @@ async function attach_token(req, res, next) {
 
 /*  @Code-flow
     1.  User posts credential to server on the '/login' route
-    2.  Use the bodyParser middleware to read the user credentials from the request body
+    2.  Check to make sure that the user does not already have a valid token.
+    3.  Use the bodyParser middleware to read the user credentials from the request body
         - Make sure that the deserialization is safe from JS execution attacks
         - Maybe Clean/Sanitize the credentials before using it against the DB?
-    3.  Login route's handler will authenticate user's credential against those in the Database
-    4.  If the credentials are valid,
+    4.  Login route's handler will authenticate user's credential against those in the Database
+    5.  If the credentials are valid,
             - Generate a JWT/Refresh-token pair
             - Put the tokens into the response headers
             - Put the redirect location towards the user homepage into the response headers

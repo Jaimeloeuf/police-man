@@ -49,7 +49,7 @@ router.post('/user/forget-password', async (req, res, next) => {
         }, {
                 // Override these default options
                 expiresIn: '15m',
-                subject:
+                // subject:
         });
 
         // Generate token for this service for accessing the mail service

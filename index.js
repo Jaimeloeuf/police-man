@@ -17,15 +17,16 @@ const { getPublicKey } = require('./token');
 // Function to return the uptime in ms
 const uptime = ((start_time) => () => Date.now() - start_time)(Date.now());
 
-const counter = function() {
-    this.value = 0;
-    this.count = () => ++this.value;
-}
-app.use((req, res) => counter.count());
-
-var counter = 0;
-app.use(() => ++counter);
-counter
+// Counter object to track number of occurences for different events
+var counter = {
+    req: 0,
+    failures: 0
+};
+// Middleware to increase count of req, on each request received
+app.use((req, res, next) => {
+    ++counter.req;
+    next();
+});
 
 /*
     When u call next without any arguements, it will run the next middleware that matches route
@@ -55,7 +56,7 @@ app.get('/ping', (req, res) => {
         status: 200,
         // Current server response latency of the /ping request
         // latency: (Date.now() - req.start_time)
-        req_counts: counter.value,
+        req_counts: counter,
         uptime: uptime()
     });
 });
@@ -105,6 +106,9 @@ app.use((req, res) => {
     Note that an Error status code set with res.status() method will have precedence over err.code
 */
 app.use((err, req, res, next) => {
+    // Increase failure count of the counter object
+    ++counter.failures;
+
     // Log error either to error logs or to a logging service
     console.error(err.stack);
 
