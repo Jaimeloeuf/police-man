@@ -33,7 +33,7 @@ router.post('/user/forget-password', async (req, res, next) => {
     /*  Read the email/userID from the body.
         Use express.json with size limit before rejecting request as this is a public route
         Expected JSON in request body:  { "userID": ... }   */
-    let { userID } = req.body;
+    const { userID } = req.body;
 
     try {
         // Get the user object from the DB about this user
@@ -70,7 +70,7 @@ router.get('/auth/reset-password/:token', async (req, res, next) => {
         const decoded_token = await verify_token(req.params.token);
 
         // Put the token into the Set-Cookie header
-        /* Can we go use a cookie module, to deal with the cookie parsing and the setting */
+        // @TODO Use a cookie module, to deal with the cookie parsing and setting cookies
 
         // Generate the reset password page with the userID in the token and end response     
     } catch (err) {
@@ -82,6 +82,8 @@ router.get('/auth/reset-password/:token', async (req, res, next) => {
 // API endpoint for posting the new credentials
 // This time round the tmp token is in the cookies
 router.post('/auth/reset-password', express.json({ limit: "1kb" }), async (req, res, next) => {
+    // Check that token is valid
+
     // Using the userID in the token, retrieve password hash from database
 
     db.update_hash(req.body.userID, req.body.pass)
