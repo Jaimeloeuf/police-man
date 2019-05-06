@@ -2,12 +2,12 @@
 
 /*	@Doc
     API routes for registering a new user
-    All URL endpoints will have a '/user' prefixed to the routes
+    All URL endpoints have "/user" route prefixed when router is mounted onto server app
 
 
     @Flow (Of registering a new user)
     - User goes to the register page.
-    - User enters email and click enter, and the details are POSTed to the server via AJAX
+    - User enters email and click enter, the details are POSTed from SPA to server via AJAX
     - Server creates a one time, short lived JWT with permissions to register only and
       send this JWT to the user's email address as a clickable registration link.
     - User opens email and clicks on the link
@@ -24,6 +24,7 @@
         - Server responds with the web-app and JWT in the cookie.
     - POST: Final endpoint for user to post all user details before being redirected to login page
 
+
     @Todo
     - Verify if all the status code sent back are right and informative
     - Should the email posting route, get the email in the URL? Would that be better than using json?
@@ -38,8 +39,12 @@ const db = require('../db/db');
 
 // POST route to get email address
 router.post('/register', express.json({ limit: "500" }), (req, res) => {
-    /*  @Flow
-        - Check if email is valid
+    /*  @Doc
+        This route accepts a email from or User identifier from the SPA, to
+        generate a one time use JWT and send the token to the user via email.
+
+        @Flow
+        - Check if email is valid against the DB
         - Create JWT for temporary registration use
         - Send JWT over to email
         - Respond with a 200 ok if no problem
@@ -62,62 +67,41 @@ router.post('/register', express.json({ limit: "500" }), (req, res) => {
     const token = create_token({ sub: email });
 
     // Create HTML template and send JWT over. Either render the HTML here or request for it in mail service
-    const link = `https://localhost:3000/user/register?token=${token}`;
+    const link = `https://localhost:3000/user/register/${token}`;
+
+    // Use a templating engine to inject the link in.
+    // The developer of this service should add a HTML template that accepts a link.
+    // @TODO implement the above
 
 
     res.status(200);
 });
 
-// v2 of POST route to get email address
-router.post('/register/:email', (req, res) => {
-    /*  @Flow
-        - Check if email is valid
-        - Create JWT for temporary registration use
-        - Send JWT over to email
-        - Respond with a 200 ok if no problem
-    */
 
-    const { email } = req.params;
+/*  On the register page:
 
-    // Check if email is valid
+    Route to get static register page. It depends if the app is a single page app or a site with static navigation links. If static based site is used with this service then the below GET /register route needed, else the SPA should just update itself to show the register page without server call.
+    
+    // router.get('/register', (req, res) => { });
 
-
-    // Create JWT for the user
-    // Create a create_token function that have the registration signOption partially applied to it
-    const signOptions = {
-        issuer: 'auth-backend',
-        // subject: email,
-        audience: 'registration',
-        expiresIn: '10m', // 10min lifetime
-        algorithm: 'RS256' // Must be RS256 as using asymmetric signing
-    };
-    const token = create_token({ sub: email });
-
-    // Create HTML template and send JWT over. Either render the HTML here or request for it in mail service
-    const link = `https://localhost:3000/user/register?token=${token}`;
-
-
-    res.status(201);
-});
-
-
-// Route to get the static register page. It really depends if the app is a single page app or isit static based with links for navigation
-// If static based then this is needed, else the web-app should just update itself to show the register page without calling server
-// router.get('/register', (req, res) => { });
+    ^ The full path for the above route is "/user/register"
+*/
 
 
 router.get('/register/:token', async (req, res) => {
-    /*  @Flow
+    /*  @Doc
+        This is the route accessed by client when clicking on the link sent to their email for registration.
+    
+        @Flow
         - Verify token sent in the URL
-        - If JWT is valid, redirect to register user details page or, send res to ask client web-app to load that page
+        - If JWT is valid, redirect to enter user details for registration page, if SPA, it means to send response asking client web-app to load that page register page. Most likely sending the whole App back and loading that page on startup. Make sure that the token is now set in the client's cookie
         - Else send back a "Sorry link invalid" with redirect to register page again.
             ^ Should the redirect be done with the web-app? So server only respond with fail and web-app redirects
     */
-    const { token } = req.params;
 
     try {
         // Decode and verify token
-        const decoded_token = verify_token(token);
+        const decoded_token = verify_token(req.params.token);
 
         // Send username back to the web-app to display
         res.send(decoded_token.username);
@@ -130,9 +114,21 @@ router.get('/register/:token', async (req, res) => {
     }
 });
 
+
 // POST route that takes user details and insert to DB
 router.post('/register/details', express.json({ limit: "1kb" }), (req, res) => {
-    /* Limit size of the request body for security reasons */
+    /*  @Doc
+        This route is the final route to complete user registration.
+        User posts the rest of the user details to the server to store and can now log in.
+
+        The size of the request body is limited for security reasons.
+        Size limit can be changed but only do so if you are sure that the user details exceed the limit
+
+	@Flow
+	- Check the JWT in the request cookie to be valid.
+	- Check that the user object exists in the DB right now
+	- Insert the data into the user details database and response with insertion status.
+    */
 
     // Call the DB function and pass it the user details object in the request body
     db.new_user(req.body.user)
@@ -147,6 +143,20 @@ router.post('/register/details', express.json({ limit: "1kb" }), (req, res) => {
             res.status(500).send(err);
             // ^ Perhaps just log the error and dont send it back to client for security concerns.
         });
+
+
+    try {
+        // Call the DB function and pass it the user details object in the request body
+        await db.new_user(req.body.user);
+
+        // On successful user insertion, send confirmation to user email and redirect user to login page.
+        // @TODO Should redirect be done by using response headers or requesting fron-end app to do so?
+        res.status(201); // 201 to indicate successful creation of user
+    } catch (err) {
+        // If there is an error, send error back to client and end the req cycle
+        // @TODO Or Perhaps just log the error and dont send it back to client for security concerns.
+        res.status(500).send(err);
+    }
 });
 
 
