@@ -18,13 +18,18 @@
     - Create a new /user route without the userID, which basically just
       accepts a req from the client, read its JWT to check for the userID
       and then redirects the client to the route that holds their userID
+
+    
+    Routes to implement:
+    /user/authenticate
+    /user/logout
 */
 
 const express = require('express');
 const router = express.Router();
 const { verify_token } = require('../token');
 const db = require('../db/db');
-const { print } = require('../utils');
+
 
 // Next function is not needed, as it will be called automatically by express
 async function jwt_mw(req, res, next) {
@@ -40,30 +45,7 @@ async function jwt_mw(req, res, next) {
 }
 
 
-/*
-
-/user/authenticate
-/user/logout
-
-*/
-
-// (READ) Route to get the user object back from the DB
-// router.get('/:userID', async (req, res) => {
-//     const { userID } = req.params;
-
-//     try {
-//         const user = await db.get_user(userID);
-
-//         // Delete the hash before sending user object back to client
-//         delete user.hash;
-
-//         res.json(user);
-//     } catch (err) {
-//         next(err);
-//     }
-// });
-
-// (READ) Route to get the user object back from the DB
+// Route to return user object to client from DB
 router.get('/:userID', (req, res) => {
     db.get_user(req.params.userID)
         .catch((user) => {
@@ -75,11 +57,13 @@ router.get('/:userID', (req, res) => {
         .catch(next); // If read user failed, pass err to error handling middleware
 });
 
+
 // Route to create a new user
 router.post('/new', express.json({ limit: "1kb" }), (req, res, next) => {
     db.new_user(req.body)
         .then(() => res.status(201).end()) // End the request with a "Resource created" code if successful
         .catch(next); // If creation failed, pass err to error handling middleware
 });
+
 
 module.exports = router;
