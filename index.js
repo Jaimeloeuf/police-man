@@ -8,13 +8,12 @@
 const express = require('express');
 const app = express();
 
-// const { port } = require('./config');
-const port = 3000;
+const { port } = require('./config');
 const { print } = require('./utils');
 const { getPublicKey } = require('./token');
 // Finalhandler module to deal with responding back to the client and closing the connection
 
-// Function to return the uptime in ms
+// Function returns uptime in ms. Self invoking partial application with startup time
 const uptime = ((start_time) => () => Date.now() - start_time)(Date.now());
 
 // Counter object to track number of occurences for different events
@@ -53,9 +52,13 @@ app.get('/ping', (req, res) => {
 		- Load of the server
     */
     res.json({
+        // @TODO Remove the hardcoded status number
         status: 200,
+
         // Current server response latency of the /ping request
         // latency: (Date.now() - req.start_time)
+
+        // Note that counter is also updated with each call to "/ping"
         req_counts: counter,
         uptime: uptime()
     });
@@ -63,8 +66,9 @@ app.get('/ping', (req, res) => {
 
 
 // 404 Handler for different type of requests
+// Normal request middleware, called when no other route's are matched
 app.use((req, res) => {
-    // Wrap in try/catch so if rendering/send fails, 500 error middleware is called
+    // Wrap in try/catch in case rendering/send fails.
     try {
         // Log error either to error logs or to a logging service
 
@@ -77,15 +81,21 @@ app.use((req, res) => {
         $ curl http://localhost:3000/notfound -H "Accept: application/json"
         $ curl http://localhost:3000/notfound -H "Accept: text/plain" */
 
-        if (req.accepts('html')) // Use templating engine to generate and respond with html page
+        /*  Since this is an JSON API only service, this HTML response should only be valid
+            if a user navigates to the Service using a browser or something mistakenly.
+            Use the templating engine to generate the html page */
+        if (req.accepts('html'))
             res.render('404', { url: req.url });
 
-        else if (req.accepts('json')) // respond with json for S.P.A / P.W.A
+        // respond with json for S.P.A / P.W.A
+        else if (req.accepts('json'))
             res.send({ error: 'Not found' });
 
-        else // defaults to plain-text representation of the HTTP code
+        // defaults to plain-text representation of the HTTP code
+        else
             res.sendStatus(404);
     } catch (err) {
+        // 500 error middleware is called upon catching any errors
         next(err);
     }
 });
@@ -93,14 +103,14 @@ app.use((req, res) => {
 
 /*  500 internal server error route handler
 
-    To set a error status code that is not 500,
-    run either of the below code before passing the error object, "err" into the "next" function
+    To set a error status code other than 500,
+    run either of the below code before passing error object, "err" into the "next" function
 
-    // Set the code as property of the object
-    err.code = 401;
-    // Set statusCode directly with the built in method
-    res.status(401);
-    // Call the next function with the err object
+    res.status(401); // Set statusCode directly with the built in method
+    OR
+    err.code = 401; // Set the code as property of the object
+
+    // Call the next function with the err object once the code is set.
     next(err);
 
     Note that an Error status code set with res.status() method will have precedence over err.code

@@ -6,4 +6,7 @@
 */
 
 // See if any additional acceptable environmental variables injected, Overwrite existing defaults if available.
-module.exports.port = process.env.port || 80;
+// module.exports.port = process.env.port || 80;
+
+// Using 3000 for dev env. Will introduce port switching once completed
+module.exports.port = process.env.port || 3000;
