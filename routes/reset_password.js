@@ -82,7 +82,7 @@ router.get('/auth/reset-password/:token', async (req, res, next) => {
 // API endpoint for posting the new credentials
 // This time round the tmp token is in the cookies
 router.post('/auth/reset-password', express.json({ limit: "1kb" }), async (req, res, next) => {
-    // Check that token is valid
+    // @TODO Check JWT in request cookie is valid
 
     // Using the userID in the token, retrieve password hash from database
 

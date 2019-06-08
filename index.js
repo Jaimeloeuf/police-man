@@ -67,7 +67,7 @@ app.get('/ping', (req, res) => {
 
 // 404 Handler for different type of requests
 // Normal request middleware, called when no other route's are matched
-app.use((req, res) => {
+app.use((req, res, next) => {
     // Wrap in try/catch in case rendering/send fails.
     try {
         // Log error either to error logs or to a logging service
