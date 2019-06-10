@@ -11,7 +11,11 @@
     "type": "git",
     "url": "git+https://github.com/Jaimeloeuf/police-man.git"
   },
-  "author": "Jaime Loeuf",
+  "author": {
+    "name": "Jaime Loeuf",
+    "email": "jaimeloeuf@gmail.com",
+    "url": "https://jaimeloeuf.github.io/"
+  },
   "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/Jaimeloeuf/police-man/issues"
