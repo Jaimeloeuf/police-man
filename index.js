@@ -2,7 +2,12 @@
 
 /*	@Doc
 	Main server app instance module.
-	This module only holds misc. routes like ping and error handling routes like for 404.
+    This module only holds misc. routes like ping and error handling routes like for 404.
+    
+    Express Note:
+    When "next" is called without any arguements, it will run the next middleware that matches route
+    When called with 1 arguement, it will run the next middleware that has 4 arguements, which is the
+    (err, req, res, next) Error handling middleware. The 1st arguement will be treated as the error object.
 */
 
 const express = require('express');
@@ -13,25 +18,19 @@ const { print } = require('./utils');
 const { getPublicKey } = require('./token');
 // Finalhandler module to deal with responding back to the client and closing the connection
 
+
 // Function returns uptime in ms. Self invoking partial application with startup time
 const uptime = ((start_time) => () => Date.now() - start_time)(Date.now());
 
+
 // Counter object to track number of occurences for different events
-var counter = {
-    req: 0,
-    failures: 0
-};
+const counter = { req: 0, failures: 0 };
+
 // Middleware to increase count of req, on each request received
 app.use((req, res, next) => {
     ++counter.req;
     next();
 });
-
-/*
-    When u call next without any arguements, it will run the next middleware that matches route
-    When called with 1 arguement, it will run the next middleware that has 4 arguements, which is
-    the err, req, res, next middleware. That 1 arguement will be treated as the error object.
-*/
 
 
 /* Mount all the routers from the route modules onto the Express app */
@@ -55,6 +54,7 @@ app.get('/ping', (req, res) => {
         // @TODO Remove the hardcoded status number
         status: 200,
 
+        // @Todo find a way to calculate server latency
         // Current server response latency of the /ping request
         // latency: (Date.now() - req.start_time)
 
@@ -68,7 +68,7 @@ app.get('/ping', (req, res) => {
 /*  404 Handler for different type of requests
     Normal request middleware, called when no other route's are matched
 
-    Wrap in try/catch in case response fails.
+    Wrapped in try/catch in case response fails.
 */
 app.use((req, res, next) => {
     try {
@@ -88,12 +88,15 @@ app.use((req, res, next) => {
 
 /*  500 internal server error route handler
 
-    To set a error status code other than 500,
-    run either of the below code before passing error object, "err" into the "next" function
+    For error status code other than 500, look at example below
 
     res.status(401); // Set statusCode directly with the built in method
-    OR
+        OR
     err.code = 401; // Set the code as property of the object
+
+    ** Note that an Error status code set with res.status() method will have precedence over err.code
+
+    next(err); // Call the next middleware function with the err object once the code is set.
 
     ----------------------------------------------------------------------------------------------
 
@@ -102,12 +105,6 @@ app.use((req, res, next) => {
 
     err.send_msg_back = true; // Set true to return the error message back to the client
 
-    ----------------------------------------------------------------------------------------------
-
-    // Call the next function with the err object once the code is set.
-    next(err);
-
-    Note that an Error status code set with res.status() method will have precedence over err.code
 */
 app.use((err, req, res, next) => {
     // Increase failure count of the counter object
