@@ -1,5 +1,5 @@
 {
-  "name": "auth-service",
+  "name": "police-man",
   "version": "0.0.1",
   "description": "Generic IAM microservice",
   "main": "index.js",
