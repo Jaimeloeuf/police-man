@@ -20,8 +20,19 @@ const { create_token, verify_token } = require('../token');
 async function authenticate(req, res, next) {
     // Expected JSON from client: { userID: "Unique userID", pass: "Password for this user" }
     try {
-        // Verify credentials to get user object back and attach to req object to use downstream
-        req.user = await auth.verify_credentials(req.body.userID, req.body.pass);
+        // Extract the userID and the password from the request body.
+        const { userID, pass } = req.body;
+
+        /*  Make sure extracted values are not empty or undefined, before verifying credentials to
+            get back the user object, in order to attach it onto the req object for use downstream. */
+        if (userID && pass)
+            req.user = await auth.verify_credentials(userID, pass);
+        else {
+            const err = new Error("badly formed body");
+            // To send the error message back to the client.
+            err.send_msg_back = true;
+            throw err;
+        }
 
         // Call the next middleware
         next();
