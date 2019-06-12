@@ -74,9 +74,11 @@ app.use((req, res, next) => {
     try {
         // Log error either to error logs or to a logging service
 
-        // Set status to indicate resource not found
-        // defaults to plain-text representation of the HTTP code
-        res.sendStatus(404);
+        // Set status to indicate resource not found and send back the string representation of the HTTP code, i.e. "Not-Found"
+        // res.sendStatus(404);
+
+        // Send without the string representation. End the cycle right after setting with 404
+        res.status(404).end();
     } catch (err) {
         // 500 error middleware is called upon catching any errors
         next(err);
@@ -92,6 +94,15 @@ app.use((req, res, next) => {
     res.status(401); // Set statusCode directly with the built in method
     OR
     err.code = 401; // Set the code as property of the object
+
+    ----------------------------------------------------------------------------------------------
+
+    To send the error message back to the client, and not just the status code with an empty body.
+    Use the "send_msg_back" property. Set it to true to send mesage back to client.
+
+    err.send_msg_back = true; // Set true to return the error message back to the client
+
+    ----------------------------------------------------------------------------------------------
 
     // Call the next function with the err object once the code is set.
     next(err);
@@ -110,7 +121,7 @@ app.use((err, req, res, next) => {
         res.status(err.code || 500);
 
     // End the request after making sure status code is set
-    res.end();
+    res.end(err.send_msg_back ? err.message : undefined);
 
     // Should the error message or something like below be sent back to the user?
 });
