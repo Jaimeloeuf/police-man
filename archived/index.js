@@ -65,18 +65,35 @@ app.get('/ping', (req, res) => {
 });
 
 
-/*  404 Handler for different type of requests
-    Normal request middleware, called when no other route's are matched
-
-    Wrap in try/catch in case response fails.
-*/
+// 404 Handler for different type of requests
+// Normal request middleware, called when no other route's are matched
 app.use((req, res, next) => {
+    // Wrap in try/catch in case rendering/send fails.
     try {
         // Log error either to error logs or to a logging service
 
         // Set status to indicate resource not found
+        res.status(404);
+
+
+        /* Since this is the last non-error-handling middleware used, we assume 404, as nothing else matched/responded.
+        $ curl http://localhost:3000/notfound
+        $ curl http://localhost:3000/notfound -H "Accept: application/json"
+        $ curl http://localhost:3000/notfound -H "Accept: text/plain" */
+
+        /*  Since this is an JSON API only service, this HTML response should only be valid
+            if a user navigates to the Service using a browser or something mistakenly.
+            Use the templating engine to generate the html page */
+        if (req.accepts('html'))
+            res.render('404', { url: req.url });
+
+        // respond with json for S.P.A / P.W.A
+        else if (req.accepts('json'))
+            res.send({ error: 'Not found' });
+
         // defaults to plain-text representation of the HTTP code
-        res.sendStatus(404);
+        else
+            res.sendStatus(404);
     } catch (err) {
         // 500 error middleware is called upon catching any errors
         next(err);
