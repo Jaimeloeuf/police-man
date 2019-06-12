@@ -31,6 +31,8 @@ async function authenticate(req, res, next) {
             const err = new Error("badly formed body");
             // To send the error message back to the client.
             err.send_msg_back = true;
+            // Set error code to be 400 for Client error bad request.
+            err.code = 400;
             throw err;
         }
 
@@ -75,14 +77,15 @@ async function attach_token(req, res, next) {
             - Put the tokens into the response headers
             - Put the redirect location towards the user homepage into the response headers
             - Respond back to the client with the Response messages
-
-    "tokens" and "login" routes are both used for exchanging Credentials for JWTs
-    - When user is on login page, creds. should be posted to /login route
-    - When user is not on the login page but needs to post creds. for JWTs, then /token route should be used
 */
-router.post(['/login', '/token'], express.json({ limit: "1kb" }), authenticate, attach_token);
+router.post('/login', express.json({ limit: "1kb" }), authenticate, attach_token);
 
 
+// @Todo fix below route to make it for token generation for services.
+// router.post('/token', express.json({ limit: "1kb" }), authenticate, attach_token);
+
+
+// When JWT expires, user should POST refresh token to "/token/refresh" route for a new token pair
 // Route to get a new JWT with a complimentary refresh token
 router.post('/tokens/refresh', express.json(), (req, res) => {
     // Use the bodyParser middleware to read the refresh token in the request body
