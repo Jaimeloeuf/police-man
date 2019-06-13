@@ -23,6 +23,13 @@
     Routes to implement:
     /user/authenticate
     /user/logout
+    /user/delete
+        - Is the password needed for delete the user account?
+        - If the user wants to delete his/her own account it is possible, because they would have their own passwords
+        - But what if the service wants to delete the account? The service would not have the credentials
+        - Perhaps this is where the access management comes in?
+        - Where admin/service account entries have more permissions?
+        - If this is done it means that the database will need to store alot more information than just the user ID and password hash
 */
 
 const express = require('express');
@@ -63,6 +70,14 @@ router.post('/new', express.json({ limit: "1kb" }), (req, res, next) => {
     db.new_user(req.body)
         .then(() => res.status(201).end()) // End the request with a "Resource created" code if successful
         .catch(next); // If creation failed, pass err to error handling middleware
+});
+
+
+// Route to delete a user account
+router.post('/delete', express.json({ limit: "1kb" }), (req, res, next) => {
+    // db.delete_user(req.body)
+    //     .then(() => res.status(200).end()) // End the request with success code and end cycle
+    //     .catch(next); // If creation failed, pass err to error handling middleware
 });
 
 
