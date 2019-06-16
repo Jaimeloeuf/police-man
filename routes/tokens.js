@@ -45,23 +45,37 @@ async function authenticate(req, res, next) {
 }
 
 
-// Middleware function for creating JWT payload for the client, creating and signing the JWT and finally attaching it for the user to use
+/*  Options object for responding with Cookies
+    This should be unique for every application / use case.
+    @Todo see how this can be updated / different for every application.
+*/
+const cookie_options = {
+    // 600,000 ms expiry time => 10mins before refresh needed.
+    expires: new Date(Date.now() + 600000),
+
+    // Http Only cookie to prevent XSS attacks
+    httpOnly: true
+};
+
+// Middleware for creating the JWT before attaching it onto the response stream for the user depending on the client type
 async function attach_token(req, res, next) {
-    // Base on the results by the authenticate middleware create a token for the user
+    // Base on the results by the authenticate middleware, create a token for the user uding the user object
     const token = await create_token(req.user);
 
+    // @Todo Fix the items below
     // Attach token to res object differently based on request client type.
     // If browser client, set token into cookie. Else if service or native app, put in auth header
-    if (req.header.type === 'browser') // Make a Regex Search or use a package for this
-    {
-        res.header['Set-cookie'] = token;
+    if (req.header.type === 'browser') {
+        // Make a Regex Search or use a package for this
     }
     else { // If service or native apps
         res.header['Authorization'] = token;
     }
 
-    // Temporary end cycle statement with the token in the body
-    res.end(token);
+    // @Todo What if the user tries to login even though he/she already has a token?
+
+    res.cookie('token', token, cookie_options); // Send the token back to the user as a Cookie
+    res.end(); // End the cycle
 }
 
 
