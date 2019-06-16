@@ -3,11 +3,18 @@ This is a standalone IAM (Identity and Access Management) microservice, built to
 This allows you to be your own standalone identity provider just like using google/facebook/github as identity providers for social logins, except that now you are no longer dependant on other platforms and infrastructure for your user's identity.  
 This Backend microservice is API based, designed only for providing Identity and Access management of user accounts over its API.  
 This project is open source and available free of charge to use, but hopefully will be offering a freemium service after first stable major release is out!  
+View the current status/progress of the project below in section "Current Progress / News"
 
-There are 2 parts to this story, Identity provisioning and Authorization/Access-management. But before we talk more about it, right below is the definition of the different stakeholders that will be interacting with this service.
+## Current progress / News
+Current state of the project:  pre-alpha
+- Right now the Identity Management part is being implemented right now. It is the part where users can get signed Identity tokens in exchange for valid credentials, and using this access token they can then access other resources in your microservice cluster.
+    - Expected date of completion (releasing as alpha stage): August 2019
 
 
 ## Service stakeholder definitions
+This section defines the definition of the different stakeholders that will be interacting with this service.  
+Like the type of users and what they can do with the service.
+
 - Developer / Dev:
     - A "developer" is defined as the person who is creating the application
     - A developer is also referenced as the person who can build upon the API for their app
@@ -22,6 +29,8 @@ There are 2 parts to this story, Identity provisioning and Authorization/Access-
     - Admin accounts can be grouped together by their organizations.
 
 --------------------------------------------------
+## Definition for "IAM and how this project treats it"
+Below are the 2 parts to this IAM story, Identity provisioning and Authorization/Access-management.
 
 ## Identity management
 The sole purpose of Identity Managment is to:
@@ -70,36 +79,37 @@ In this section we will talk about the database and storage choices for a servic
         - Email, however is not suggested because if DB is ever hacked, all the emails are exposed and can be used for things like spam which can damage the reputation of your brand. Even a simple hash of the emails is more preferable.
     - corresponding credential hash and salt
         - Assuming if BCrypt is used, the salt is together with the password, thus there will be no need for a salt attribute
-    - Access rights (a.k.a roles in your application)
+    - Access rights (a.k.a roles in your application) (an array of enumerated values of roles and permissions assigned to the user)
 
-#### User datastore (Key Value pair document based storage form)
-Below is an example on how the User store will look like:
+To deal with allowing users to use one account and still access multiple different apps offered by your organization. Every single application is a role. Example, users can use both "my_app" and "his_app", you just give user's a role depending on which app they use and the permission within that app. So if both my_app and his_app are used, then the user will have 2 groups of roles.
+
+To keep the database clean and the schema relatively flat. There should not be too much nesting. Instead of nesting application specific roles as an array that is binded to the application as a role and storing the full name of the role every single time, we should store an enumerated item representing all the roles.
+So like create an enum of possible roles, and then store the enumerate value in the user DB so that the user DB is really flat and simple. And this also have added security benefits too, if the user DB is hacked, you cant't tell which user has what role, because all of the enumerated values are stored in the roles database instead. And since these are 2 seperate databases, there is an added layer of security.
+
+Below is an example on how the "User datastore (Key Value pair document based storage form)" will look like:
 ```js
 {
-    ${user_UID} : {
-        userID:
-        hash:
+    user_UID : {
+        user_UID: "",
+        credential_hash: "",
+        roles: ["my_app:admin", "his_app:user"]
    }
 }
 ```
 Legend:
 - user_UID
-    - This must be an `unique identifier` for every single user that MUST be unique in the whole datastore. Generally speaking each organization gets 1 set of datastore, but they can choose to create more.
+    - This must be an **unique identifier** for every single user that MUST be unique in the whole datastore. Generally speaking each organization gets 1 set of datastore, but they can choose to create more.
     - "user_UID" is used as the key for user objects
-    - It is possible to share users across different applications (This can be configured)
-
-Every single application is a role. Example, users can use both "my_app" and "his_app", you just give user's a role depending on which app they use and the permission within that app. So if both my_app and his_app are used, then the user will have 2 groups of roles.
-
-To keep the database clean and the schema relatively flat. There should not be too much nesting. Instead of nesting application specific roles as an array that is binded to the application as a role and storing the full name of the role every single time, we should store an enumerated item representing all the roles.
-So like create an enum of possible roles, and then store the enumerate value in the user DB so that the user DB is really flat and simple. And this also have added security benefits too, if the user DB is hacked, you cant't tell which user has what role, because all of the enumerated values are stored in the roles database instead. And since these are 2 seperate databases, there is an added layer of security.
-
-- userID
-- hash
-- roles  (an array of enumerated values representing the roles this user have)
-- permissions  (an array of enumerated values representing the permissions this user have)
+- credential_hash
+    - This is the hash of the user's password. There can be an additional attribute for the salt used for the hash, but since BCrypt is used and BCrypt stores the hash and salt together, the additional attribute is not needed with this BCrypt implementation.
+- roles
+    - This is an array of roles that is assigned to this user account.
+    - As mentioned above, this is kept as flat as possible with the elements in this array being enumerated values too.
 
 
 ### Database/Datastore notes
+- Hash used for credentials
+    - Currently the BCrypt algorithm is being used for password hashing, but you can easily rewrite it to use other hashing algorithm such as Argon2 or Scrypt. Currently using BCrypt because it is one of the most popular algorithm with wide support.
 - To keep the persisted state clean and lean. Nothing else is included, not even other user details.
     - Because this service is purely for identity matching and token provisioning, application specific user details should be handled seperately by a "user service" that does application specific user details management in your application's microservice architecture. Thus the police man service WILL NOT store any application specific user state for you.
     - It is important to note that this Auth service is, and has to be independant from the rest of your services.
@@ -139,7 +149,8 @@ User account state:
 
 --------------------------------------------------
 
-## License and Contributing
+## License and Author/Contributing
 This project is developed under the "BSD 3-Clause License"  
 Feel free to use this project as you see fit and do contribute your changes too!  
-If you have any questions feel free to contact me via [email](mailto:jaimeloeuf@gmail.com) as I know that although this is a lengthy README, it might still lack some details and can be confusing too.
+If you have any questions feel free to contact me via [email](mailto:jaimeloeuf@gmail.com) as I know that although this is a lengthy README, it might still lack some details and can be confusing too.  
+2019 <Jaime Loeuf>
