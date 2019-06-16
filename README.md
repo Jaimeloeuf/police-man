@@ -149,6 +149,30 @@ User account state:
 
 --------------------------------------------------
 
+## Going Forward
+Currently since this project is in pre-alpha stage, the focus will be building out the MvP. The MVP aims to provide Identity management and stateless authentication. MVP includes:
+- JWT provisioning in exchange for valid user credentials.
+- Either write client SDKs for communicating with the service or use a IDL like apigee/RAML for HTTP APIs to auto generate client code.
+    - gRPC can also be considered for easy client stubs generation from their protobuf definition files.
+
+### Backlog for Future features
+- Implement rate limiting for the APIs to prevent DDoS. And perhaps secure for the /ping endpoint.
+- MFA (Multi-Factor Authentication)
+	- Give users option to connect their own service for MFA or use Token based 2FA generation through shared keys.
+- When user logged out for some time, or location is different from the usual location, ask the user to do a 2FA before giving access.
+- Delete user account action
+	- By removing all user data and blacklisting the email.
+	- The row in the userDB should not be deleted, but marked as (deleted) for account status attribute.
+	- The associated data stored in the other userDB's should be deleted with the eventually consistence principle.
+- Create polyglot version of this project. Re-write in:
+    - Go
+    - Elixir
+    - Scala
+    - Clojure
+- Create a logging side car. This sidecar will provide RPC to the main code to send stuff to log, then we can configure how the logging works for each individual logging sidecar.
+
+--------------------------------------------------
+
 ## License and Author/Contributing
 This project is developed under the "BSD 3-Clause License"  
 Feel free to use this project as you see fit and do contribute your changes too!  
