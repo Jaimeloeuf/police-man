@@ -5,6 +5,11 @@ This Backend microservice is API based, designed only for providing Identity and
 This project is open source and available free of charge to use, but hopefully will be offering a freemium service after first stable major release is out!  
 View the current status/progress of the project below in section "Current Progress / News"
 
+
+## Content list
+@Todo Create a content list for this README so that it is easier to navigate this file.
+
+
 ## Current progress / News
 Current state of the project:  pre-alpha
 - Right now the Identity Management part is being implemented right now. It is the part where users can get signed Identity tokens in exchange for valid credentials, and using this access token they can then access other resources in your microservice cluster.
@@ -146,6 +151,13 @@ User account state:
 - Active (Actively used)
 - dormant (Sometime since last login / use)
 - De-activated (Deleted data, but email still black listed for now, but username now free for others to use)
+
+--------------------------------------------------
+
+## Q&A
+- Assuming that there are different roles for Client type and for Service type requests. How will the services create and use an account? Since they are fully automated?  
+    - (A) You can create the accounts for M2M communication in the web portal and generate secret keys which you can then put in a file for deployment.  
+    - (Follow-up) Is there a better way to do this? Such as secret key management API? Like a service/container that only deals with secret key management.
 
 --------------------------------------------------
 
