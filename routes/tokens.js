@@ -45,17 +45,21 @@ async function authenticate(req, res, next) {
 }
 
 
-/*  Options object for responding with Cookies
-    This should be unique for every application / use case.
-    @Todo see how this can be updated / different for every application.
-*/
-const cookie_options = {
-    // 600,000 ms expiry time => 10mins before refresh needed.
-    expires: new Date(Date.now() + 600000),
+// @Todo finish implementing this function
+// Function that returns a Cookie option that is specific for every application / user / request
+function cookie_option_for(req) {
+    /*  Options object for responding with Cookies
+    */
+    const cookie_options = {
+        // 600,000 ms expiry time => 10mins before refresh needed.
+        expires: new Date(Date.now() + 600000),
 
-    // Http Only cookie to prevent XSS attacks
-    httpOnly: true
-};
+        // Http Only cookie to prevent XSS attacks
+        httpOnly: true
+    };
+
+    return cookie_options;
+}
 
 // Middleware for creating the JWT before attaching it onto the response stream for the user depending on the client type
 async function attach_token(req, res, next) {
@@ -74,7 +78,7 @@ async function attach_token(req, res, next) {
 
     // @Todo What if the user tries to login even though he/she already has a token?
 
-    res.cookie('token', token, cookie_options); // Send the token back to the user as a Cookie
+    res.cookie('token', token, cookie_option_for(req)); // Send the token back to the user as a Cookie
     res.end(); // End the cycle
 }
 
