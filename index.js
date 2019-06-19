@@ -12,6 +12,7 @@
 
 const express = require('express');
 const app = express();
+const cookieParser = require('cookie-parser');
 
 const { port } = require('./config');
 const { print } = require('./utils');
@@ -32,6 +33,8 @@ app.use((req, res, next) => {
     next();
 });
 
+// Mount the cookie parser middleware before routes.
+app.use(cookieParser());
 
 /* Mount all the routers from the route modules onto the Express app */
 app.use('/user', require('./routes/user'));
