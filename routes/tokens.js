@@ -20,6 +20,15 @@ const { create_token, verify_token } = require('../token');
 async function authenticate(req, res, next) {
     // Expected JSON from client: { userID: "Unique userID", pass: "Password for this user" }
     try {
+
+        /*  If user already has a valid token.
+            Check if the user specified / claimed exists in the DB anot.
+
+            If no, means the user was deleted while the client still had the token.
+            In this case we would need to invalidate the token.
+        */
+        console.log('Cookies: ', req.cookies.token)
+
         // Extract the userID and the password from the request body.
         const { userID, pass } = req.body;
 
@@ -51,8 +60,8 @@ function cookie_option_for(req) {
     /*  Options object for responding with Cookies
     */
     const cookie_options = {
-        // 600,000 ms expiry time => 10mins before refresh needed.
-        expires: new Date(Date.now() + 600000),
+        // Set cookie to auto expire after 600,000ms, a.k.a 10mins before a refresh is needed.
+        maxAge: 600000,
 
         // Http Only cookie to prevent XSS attacks
         httpOnly: true

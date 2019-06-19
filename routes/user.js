@@ -21,7 +21,6 @@
 
     
     Routes to implement:
-    /user/authenticate
     /user/logout
     /user/delete
         - Is the password needed for delete the user account?
