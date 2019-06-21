@@ -85,6 +85,19 @@ In this section we will talk about the database and storage choices for a servic
     - corresponding credential hash and salt
         - Assuming if BCrypt is used, the salt is together with the password, thus there will be no need for a salt attribute
     - Access rights (a.k.a roles in your application) (an array of enumerated values of roles and permissions assigned to the user)
+    - Account usage statistics, these details are available to Developer or Account Admins to view. Details include:
+        - account_status
+            - An Enum of either active, archived or deleted
+        - created_at
+            - timestamp for when the user account is created
+        - created_by
+            - The service or whatever thing that created the account through the API
+            - This value will be either the ID of an Account Admin or a Machine/Service ID
+        - last_login
+            - timestamp of the last successful login by the user
+        - last_login_attempt
+            - timestamp of last login attempt by the user regardless if the attempt is successful or not
+            - If the last login attempt is successful, then this value should be the same as "last_login"
 
 To deal with allowing users to use one account and still access multiple different apps offered by your organization. Every single application is a role. Example, users can use both "my_app" and "his_app", you just give user's a role depending on which app they use and the permission within that app. So if both my_app and his_app are used, then the user will have 2 groups of roles.
 
@@ -97,7 +110,13 @@ Below is an example on how the "User datastore (Key Value pair document based st
     user_UID : {
         user_UID: "",
         credential_hash: "",
-        roles: ["my_app:admin", "his_app:user"]
+        roles: ["my_app:admin", "his_app:user"],
+
+        account_status: "enum of either active/archive/deleted",
+        created_at: "1559347200",
+        created_by: "john_the_admin@your_app.com",
+        last_login_attempt: "1559380000",
+        last_login: "1559380000",
    }
 }
 ```
