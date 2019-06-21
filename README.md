@@ -149,16 +149,22 @@ Legend:
 --------------------------------------------------
 
 ## Design notes and considerations
-### Why email isn't used as the username
-Because of privacy reasons, every email can have a username attached to it and that username is changeable, but not the email.  
-User can only log in with their username. This prevents people from logging in with email addresses if other sites are hacked.  
-Email can be used as the "username" or userID because this app is designed for use with the end user.
-So assuming the db is hacked, you cant really hide the email...  
+### Why email is not suggested to be used as the user_ID
+- Although every user most likely will have a unique email in most cases, it is not suggested to be used as such due to reasons concerning privacy and security.
+- For security reasons, if a user uses the same set of email and password combination across many different sites and if one of them is hacked, the attacker can very easily use the stolen credentials to log in to your site.
+- Also, assuming the worse case attack and failure scenario, if an attacker manage to hack the Database of this service and gain read access, they would be able to see all email address in plain text. Even if they can't access the credential pair, they would be able to take all the email to sell for spamming purposes, invading the user's privacy.
+- Thus instead of using the email address of the user as the unique "user_ID", a suggested way is the use a unique username set by the user, and make login only available through usernames and not email addresses.
+
+A identity is essentially a user account tied to a single user, or at least tied to a single unique user_ID.
 
 ### Info required for sign up:
 - username (unique)
+    - Username if present can be used by your app to present it as the user_ID of your user's account/identity.
 - email (unique)
+    - Email is needed for things like password resets and user account creation confirmation's
+    - In the future, there would most likely be an API available for you to do 2FA with the user's Email address.
 - password (min. strength required)
+    - Although the police-man service itself does not enforce any hard/specific password strength requirement, it is recommended that your application enforces such a requirement for security purposes.
 
 ### Signup flow
 After signup:
