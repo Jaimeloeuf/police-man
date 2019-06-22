@@ -27,6 +27,14 @@ const uptime = ((start_time) => () => Date.now() - start_time)(Date.now());
 // Counter object to track number of occurences for different events
 const counter = { req: 0, failures: 0 };
 
+// To remove X-Powered-By headers. ("disable" only works for certain express versions, please test before use)
+// app.disable('x-powered-by');
+// Easter egg, X-powered-by middleware to overwrite the original ones.
+app.use((req, res, next) => {
+    res.header("X-powered-by", "Blood, sweat and tears.");
+    next();
+});
+
 // Middleware to increase count of req, on each request received
 app.use((req, res, next) => {
     ++counter.req;
