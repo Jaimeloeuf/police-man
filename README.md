@@ -172,10 +172,17 @@ After signup:
 - Upon using the login token, user's account will be activated
 - User will be redirected to the login page with a banner showing activation successful.
 
-User account state:
-- Active (Actively used)
-- dormant (Sometime since last login / use)
-- De-activated (Deleted data, but email still black listed for now, but username now free for others to use)
+### Why is "account_status" attribute needed in the user datastore
+The "Account status" attribute is needed or at least recommended to be used because it helps in things like preventing duplicate usernames creations and also malicious account takeovers.  
+For example if your application only allow one user per email address, it would be unwise to delete the user account from the Identity service. Because if the another user tries to create a new account with the same email address, you would not be able to tell if it was the same user, or if the email has ever been used before in the past for account creation!  
+Suggested User account status to be one of a few enumerations, examples would be:
+- Active
+    - Means that the account is being actively used
+- Archived
+    - It means user account is "de-activated" but with the possiblity of being re-activated again
+- De-activated
+    - User data in the your application's user service is deleted, but the identity account is still left in the DB to blacklist both the user_ID and the email used for account creation.
+    - You should can choose not to have this field and allow users to freely re-use email addresses and user_IDs but its up to your own application's specific needs and expectations.
 
 --------------------------------------------------
 
