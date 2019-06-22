@@ -6,11 +6,18 @@ This project is open source and available free of charge to use, but hopefully w
 View the current status/progress of the project below in section "Current Progress / News"
 
 
-## Content list
-@Todo Create a content list for this README so that it is easier to navigate this file.
+## Table of Contents
+- [Current progress and news](#Current-progress-and-News)
+- [Stakeholders of this Service](#service-stakeholder-definitions)
+- [Definitions for the components in this IAM](#IAM-Definition)
+- [Data storage and schema](#Data-storage-and-schema)
+- [Design notes and considerations](#Design-notes-and-considerations)
+- [Q&A / F.A.Q section](#qa)
+- [Going Forward](#going-forward)
+- [License and Contributing](#License,-Author-and-Contributing)
 
 
-## Current progress / News
+## Current progress and News
 Current state of the project:  pre-alpha
 - Right now the Identity Management part is being implemented right now. It is the part where users can get signed Identity tokens in exchange for valid credentials, and using this access token they can then access other resources in your microservice cluster.
     - Expected date of completion (releasing as alpha stage): August 2019
@@ -34,7 +41,8 @@ Like the type of users and what they can do with the service.
     - Admin accounts can be grouped together by their organizations.
 
 --------------------------------------------------
-## Definition for "IAM and how this project treats it"
+## IAM Definition
+Definitions for "IAM and how this project treats this definition".  
 Below are the 2 parts to this IAM story, Identity provisioning and Authorization/Access-management.
 
 ## Identity management
@@ -65,7 +73,7 @@ The configurations for access management can be viewed and modified through a we
 
 --------------------------------------------------
 
-## Database and Data schema
+## Data storage and schema
 In this section we will talk about the database and storage choices for a service like this, and also discuss some F.A.Qs on this topic. Main focus of this is to explain the preferred choice of data storage of user creds and more.
 
 - There are 2 datastores owned by this service. 1 for Identity management and 1 for access rights management.  
@@ -149,6 +157,7 @@ Legend:
 --------------------------------------------------
 
 ## Design notes and considerations
+This section will be dedicated to questions and answers about the design choices made in building this IAM and also what are some of the considerations for both users of this service and those who wish to extend this service.
 ### Why email is not suggested to be used as the user_ID
 - Although every user most likely will have a unique email in most cases, it is not suggested to be used as such due to reasons concerning privacy and security.
 - For security reasons, if a user uses the same set of email and password combination across many different sites and if one of them is hacked, the attacker can very easily use the stolen credentials to log in to your site.
@@ -217,8 +226,8 @@ Currently since this project is in pre-alpha stage, the focus will be building o
 
 --------------------------------------------------
 
-## License and Author/Contributing
+## License, Author and Contributing
 This project is developed under the "BSD 3-Clause License"  
 Feel free to use this project as you see fit and do contribute your changes too!  
 If you have any questions feel free to contact me via [email](mailto:jaimeloeuf@gmail.com) as I know that although this is a lengthy README, it might still lack some details and can be confusing too.  
-2019 <Jaime Loeuf>
+2019 - [Jaime Loeuf](https://github.com/Jaimeloeuf)
