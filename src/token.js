@@ -52,7 +52,30 @@ function audience(application) {
 }
 
 
-// Default JWT Signing options object
+// Function that returns an option object depending on the given token issuser, used for signing and verifying JWTs
+function options() {
+    return {
+        issuer: 'police-man',
+        audience: ['police-man', ...audience()],
+        expiresIn: '10m' // Give the token a 10min default Time To Live
+    };
+}
+
+
+function signOptions() {
+    const option = options();
+    option.algorithm = 'RS256'; // Must be RS256 as using asymmetric signing
+    return option;
+}
+
+function verifyOptions() {
+    const option = options();
+    option.algorithm = ['RS256'] // Unlike signOption that we used while signing new token , we will use verifyOptions to verify the shared token by client. The only difference is, here the algorithm is Array [“RS256”].
+    return option;
+}
+
+
+/* // Default JWT Signing options object
 const signOptions = {
     issuer: 'police-man',
     subject: 'some@user.com',
@@ -67,7 +90,7 @@ const verifyOptions = {
     subject: 'some@user.com',
     audience: ['police-man', ...audience()],
     algorithm: ['RS256'] // Unlike signOption that we used while signing new token , we will use verifyOptions to verify the shared token by client. The only difference is, here the algorithm is Array [“RS256”].
-};
+}; */
 
 
 module.exports = {
@@ -75,8 +98,8 @@ module.exports = {
     get_token,
 
     // Partially applied functions from the jwt module with default options object in their closures
-    create_token: jwt.create_token(signOptions),
-    verify_token: jwt.verify_token(verifyOptions),
+    create_token: jwt.create_token(signOptions()),
+    verify_token: jwt.verify_token(verifyOptions()),
 
     // Directly re-export method for getting public key from the jwt module
     getPublicKey: jwt.getPublicKey
