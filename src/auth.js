@@ -32,6 +32,7 @@ const db = require('./db/db');
     Rejects with error code from async function calls if either the DB or BCrypt action fails.
 */
 const verify_credentials = (userID, password) =>
+// @Todo is this really the better solution? Where new Promise uses async function
     new Promise(async (resolve, reject) => {
         try {
             // Get the whole user object from the DB
@@ -51,6 +52,30 @@ const verify_credentials = (userID, password) =>
             return reject(err);
         }
     });
+
+
+// Figure out how the below will work
+/* async function verify_credentials(userID, password) {
+    try {
+        // Get the whole user object from the DB
+        const user = await db.get_user(userID);
+
+        // If the password is correct, return the user Object
+        if (await bcrypt.compare(password, user.hash))
+            return resolve(user);
+        else {
+            // If the password is incorrect, create an error object and reject with it
+            const err = new Error('Wrong password');
+            err.code = 401;
+            return reject(err);
+        }
+    } catch (err) {
+        // If db or Bcrypt throws other errors, reject with the error
+        return reject(err);
+    }
+} */
+
+
 
 module.exports = {
     verify_credentials
