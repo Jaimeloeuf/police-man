@@ -28,6 +28,8 @@ async function authenticate(req, res, next) {
             In this case we would need to invalidate the token.
         */
         console.log('Cookies: ', req.cookies.token)
+        verify_token(req.cookies.token)
+            .then(console.log)
 
         // Extract the userID and the password from the request body.
         const { userID, pass } = req.body;
@@ -85,6 +87,7 @@ async function attach_token(req, res, next) {
         res.header['Authorization'] = token;
     }
 
+    console.log(token)
     // @Todo What if the user tries to login even though he/she already has a token?
 
     res.cookie('token', token, cookie_option_for(req)); // Send the token back to the user as a Cookie

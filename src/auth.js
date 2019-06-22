@@ -39,8 +39,10 @@ const verify_credentials = (userID, password) =>
             const user = await db.get_user(userID);
 
             // If the password is correct, return the user Object
-            if (await bcrypt.compare(password, user.hash))
+            if (await bcrypt.compare(password, user.hash)) {
+                delete user.hash;
                 return resolve(user);
+            }
             else {
                 // If the password is incorrect, create an error object and reject with it
                 const err = new Error('Wrong password');
