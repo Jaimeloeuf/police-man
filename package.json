@@ -23,11 +23,11 @@
   "homepage": "https://github.com/Jaimeloeuf/police-man#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.4",
     "express": "^4.16.4",
-    "jwts": "^1.2.5",
-    "cookie-parser": "^1.4.4"
+    "jwts": "^1.2.9"
   },
   "devDependencies": {
-    "mocha": "^6.1.4"
+    "mocha": "^6.2.0"
   }
 }
