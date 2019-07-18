@@ -20,7 +20,7 @@ View the current status/progress of the project below in section "Current Progre
 ## Current progress and News
 Current state of the project:  pre-alpha
 - Right now the Identity Management part is being implemented right now. It is the part where users can get signed Identity tokens in exchange for valid credentials, and using this access token they can then access other resources in your microservice cluster.
-    - Expected date of completion (releasing as alpha stage): August 2019
+    - Expected date of completion (releasing as alpha stage): Mid 2020
 
 
 ## Service stakeholder definitions
