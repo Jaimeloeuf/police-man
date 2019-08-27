@@ -29,14 +29,7 @@ const counter = { req: 0, failures: 0 };
 
 /* Mount all the middleware onto the Express app, in specified order */
 app.use(require('./middleware/debug'));
-
-// To remove X-Powered-By headers. ("disable" only works for certain express versions, please test before use)
-// app.disable('x-powered-by');
-// Easter egg, X-powered-by middleware to overwrite the original ones.
-app.use((req, res, next) => {
-    res.header("X-powered-by", "Blood, sweat and tears.");
-    next();
-});
+app.use(require('./middleware/x_powered_by'));
 
 // Middleware to increase count of req, on each request received
 app.use((req, res, next) => {
