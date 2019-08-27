@@ -27,6 +27,9 @@ const uptime = ((start_time) => () => Date.now() - start_time)(Date.now());
 // Counter object to track number of occurences for different events
 const counter = { req: 0, failures: 0 };
 
+/* Mount all the middleware onto the Express app, in specified order */
+app.use(require('./middleware/debug'));
+
 // To remove X-Powered-By headers. ("disable" only works for certain express versions, please test before use)
 // app.disable('x-powered-by');
 // Easter egg, X-powered-by middleware to overwrite the original ones.
