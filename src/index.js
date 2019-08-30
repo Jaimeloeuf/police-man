@@ -29,9 +29,7 @@ app.use(require('./middleware/debug'));
 app.use(require('./middleware/x_powered_by'));
 const { counter, counter_middleware } = require('./middleware/counter');
 app.use(counter_middleware);
-
-// Mount the cookie parser middleware before routes.
-app.use(cookieParser());
+app.use(cookieParser()); // Mount the cookie parser middleware before the routes and after most middlewares.
 
 /* Mount all the routers from the route modules onto the Express app */
 app.use('/user', require('./routes/user'));
