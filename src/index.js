@@ -24,18 +24,11 @@ const { getPublicKey } = require('./token');
 const uptime = ((start_time) => () => Date.now() - start_time)(Date.now());
 
 
-// Counter object to track number of occurences for different events
-const counter = { req: 0, failures: 0 };
-
 /* Mount all the middleware onto the Express app, in specified order */
 app.use(require('./middleware/debug'));
 app.use(require('./middleware/x_powered_by'));
-
-// Middleware to increase count of req, on each request received
-app.use((req, res, next) => {
-    ++counter.req;
-    next();
-});
+const { counter, counter_middleware } = require('./middleware/counter');
+app.use(counter_middleware);
 
 // Mount the cookie parser middleware before routes.
 app.use(cookieParser());
