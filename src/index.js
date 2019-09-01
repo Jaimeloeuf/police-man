@@ -58,6 +58,17 @@ app.get('/ping', (req, res) => {
     });
 });
 
+// Ping Route to check server status
+app.get('/ping/admin', (req, res) => {
+    /*	Things to return to client
+        - Everything already returned with a /ping call, and more
+        - Current number of users in DB
+    */
+    res.json({
+        // @Todo Implement route gaurd and json object creation
+    });
+});
+
 
 /*  404 Handler for different type of requests
     Normal request middleware, called when no other route's are matched
