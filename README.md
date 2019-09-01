@@ -13,6 +13,7 @@ View the current status/progress of the project below in section "Current Progre
 - [Data storage and schema](#Data-storage-and-schema)
 - [Design notes and considerations](#Design-notes-and-considerations)
 - [Q&A / F.A.Q section](#qa)
+- [Repo layout](#repo-layout)
 - [Going Forward](#going-forward)
 - [License and Contributing](#License,-Author-and-Contributing)
 
@@ -199,6 +200,25 @@ Suggested User account status to be one of a few enumerations, examples would be
 - Assuming that there are different roles for Client type and for Service type requests. How will the services create and use an account? Since they are fully automated?  
     - (A) You can create the accounts for M2M communication in the web portal and generate secret keys which you can then put in a file for deployment.  
     - (Follow-up) Is there a better way to do this? Such as secret key management API? Like a service/container that only deals with secret key management.
+
+--------------------------------------------------
+
+## Repo layout
+Layout of this repo with descriptions to easily navigate through the code.  
+Since this is a Express JS server app implementation, it follows some conventions from the community too.  
+
+- src (All source files are placed in this directory)
+    - db/ (Connectors and other code for interfacing with the database)
+    - middleware/ (Middlewares used for the Express JS app, refactored out to make it more granular)
+    - routes/ (Routes of the app, seperated out to keep the server file clean)
+    - index.js (Main server app, with middleware + routes mounting and some miscellaneous routes/middlewares defined)
+    - auth.js (Module for verifying user credentials against those in the DB)
+    - config.js (Executable Configuration file for the server app)
+    - hash.js (Simplified / Stripped down hash functions needed)
+    - token.js (Wraps over jwt module to inject default sign and verify values)
+    - utils.js (Utility functions modularised for repeated uses)
+- test (All tests placed here. Only tests for police-man as a whole like integration tests)
+- archived (Archived files, still kept for referencing only)
 
 --------------------------------------------------
 
