@@ -76,6 +76,7 @@ function cookie_option_for(req) {
 async function attach_token(req, res, next) {
     // Base on the results by the authenticate middleware, create a token for the user uding the user object
     const token = await create_token(req.user);
+    // ^ @Todo Set user object to "user" property of the jwt instead of setting the properties of user object on the jwt root level.
 
     // @Todo Fix the items below
     // Attach token to res object differently based on request client type.
