@@ -45,19 +45,15 @@ app.get('/public-key', (req, res) => res.end(getPublicKey()));
 // Ping Route to check server status
 app.get('/ping', (req, res) => {
 	/*	Things to return to client
-		- Current number of users in DB
-		- Load of the server
+        - Request status
+        - Server load since start time
+        - Load of the server
+        - Uptime of the server instance
     */
     res.json({
         // @TODO Remove the hardcoded status number
         status: 200,
-
-        // @Todo find a way to calculate server latency
-        // Current server response latency of the /ping request
-        // latency: (Date.now() - req.start_time)
-
-        // Note that counter is also updated with each call to "/ping"
-        req_counts: counter,
+        req_counts: counter, // @Note Values in counter are also updated with calls to "/ping" via counter_middleware
         uptime: uptime()
     });
 });
