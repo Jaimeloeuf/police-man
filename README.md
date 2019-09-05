@@ -1,8 +1,8 @@
 # Police Man
 This is a standalone IAM (Identity and Access Management) microservice, built to easily integrate into your existing backend microservice architecture/solution so you don't have to think about building your own IAM solution, which is tedious and difficult.  
 This allows you to be your own standalone identity provider just like using google/facebook/github as identity providers for social logins, except that now you are no longer dependant on other platforms and infrastructure for your user's identity.  
-This Backend microservice is API based, designed only for providing Identity and Access management of user accounts over its API.  
-This project is open source and available free of charge to use, but hopefully will be offering a freemium service after first stable major release is out!  
+This Backend microservice is currently built to use with HTTP API calls, for providing Identity and Access management of user accounts over its API.  
+This project is open source and available free of charge to use, but hopefully will be offering a freemium/managed service after first stable major release is out!  
 View the current status/progress of the project below in section "Current Progress / News"
 
 
@@ -43,7 +43,7 @@ Like the type of users and what they can do with the service.
 
 --------------------------------------------------
 ## IAM Definition
-Definitions for "IAM and how this project treats this definition".  
+Definitions for "IAM" and this project's interpretation.  
 Below are the 2 parts to this IAM story, Identity provisioning and Authorization/Access-management.
 
 ## Identity management
@@ -133,6 +133,7 @@ Legend:
 - user_UID
     - This must be an **unique identifier** for every single user that MUST be unique in the whole datastore. Generally speaking each organization gets 1 set of datastore, but they can choose to create more.
     - "user_UID" is used as the key for user objects
+    - Can be generated with the hash of the user's initial user object, but do note that the hash may change as the user object change.
 - credential_hash
     - This is the hash of the user's password. There can be an additional attribute for the salt used for the hash, but since BCrypt is used and BCrypt stores the hash and salt together, the additional attribute is not needed with this BCrypt implementation.
 - roles
@@ -144,8 +145,10 @@ Legend:
 - Hash used for credentials
     - Currently the BCrypt algorithm is being used for password hashing, but you can easily rewrite it to use other hashing algorithm such as Argon2 or Scrypt. Currently using BCrypt because it is one of the most popular algorithm with wide support.
 - To keep the persisted state clean and lean. Nothing else is included, not even other user details.
-    - Because this service is purely for identity matching and token provisioning, application specific user details should be handled seperately by a "user service" that does application specific user details management in your application's microservice architecture. Thus the police man service WILL NOT store any application specific user state for you.
-    - It is important to note that this Auth service is, and has to be independant from the rest of your services.
+    - Because this service is purely for identity matching and token provisioning
+    - Application specific user details should be handled seperately by a "user service" that does application specific user details management in your application's microservice architecture.
+    - Thus the police man service **WILL NOT STORE** any application specific user state for you.
+    - It is important to note that this Auth service is, and has to be independant from the rest of your services. Meaning that you should not be relying on this to store user details, and should have it as seperate/isolated as possible.
 - Client services or client code calling API of this service must make sure that they have a unique and valid user ID.  
     - If it is a new user, then another service like a user service should deal with account creation first, this service only deals with auth and credentials. You need to have a UID to use the identity management.
     - If your app accepts anonymous users you may encounter a problem on how to uniquely identify this user.
