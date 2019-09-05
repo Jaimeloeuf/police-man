@@ -16,7 +16,6 @@ const cookieParser = require('cookie-parser');
 
 const { port } = require('./config');
 const { print } = require('./utils');
-const { getPublicKey } = require('./token');
 // Finalhandler module to deal with responding back to the client and closing the connection
 
 
@@ -32,14 +31,10 @@ app.use(counter_middleware);
 app.use(cookieParser()); // Mount the cookie parser middleware before the routes and after most middlewares.
 
 /* Mount all the routers from the route modules onto the Express app */
+app.use(require('./routes/publicKey'));
 app.use('/user', require('./routes/user'));
 app.use(require('./routes/tokens'));
 app.use(require('./routes/reset_password'));
-
-
-// Route to get public key for verifying JWTs signed by complimenting private key.
-// Might move the key storage to a centralized publicKey store in the future
-app.get('/public-key', (req, res) => res.end(getPublicKey()));
 
 
 // Ping Route to check server status
