@@ -1,1 +1,4 @@
 node_modules/
+
+# Ignore Documentation that should be build by user themselves
+Documentation/

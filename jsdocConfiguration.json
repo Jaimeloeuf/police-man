@@ -1,0 +1,39 @@
+{
+    "tags": {
+        "allowUnknownTags": true
+    },
+    "source": {
+        "include": [
+            "./src/",
+            "./src/db",
+            "./src/routes/",
+            "./src/middleware/"
+        ],
+        "includePattern": ".+\\.js(doc|x)?$"
+    },
+    "plugins": [
+        "node_modules/jsdoc-export-default-interop/dist/index"
+    ],
+    "opts": {
+        "template": "node_modules/docdash"
+    },
+    "docdash": {
+        "sort": false,
+        "openGraph": {
+            "title": "Police-Man IAM Documentation",
+            "type": "website"
+        },
+        "meta": {
+            "title": "Police-Man IAM Documentation"
+        },
+        "search": true,
+        "menu": {
+            "Project Website": {
+                "href": "https://github.com/Jaimeloeuf/Police-Man",
+                "target": "_blank",
+                "class": "menu-item",
+                "id": "website_link"
+            }
+        }
+    }
+}

@@ -4,9 +4,11 @@
   "description": "Generic IAM microservice",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha",
+    "develop": "nodemon src/index.js",
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "buildDocs": "rimraf ./documentation && jsdoc -c ./jsdocConfiguration.json -r -d ./documentation",
+    "develop-docs": "nodemon -x npm run buildDocs",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -29,7 +31,11 @@
     "jwts": "^1.2.9"
   },
   "devDependencies": {
+    "docdash": "^1.1.1",
+    "jsdoc": "^3.6.3",
+    "jsdoc-export-default-interop": "^0.3.1",
     "mocha": "^6.2.0",
-    "nodemon": "^1.19.4"
+    "nodemon": "^1.19.4",
+    "rimraf": "^3.0.0"
   }
 }
