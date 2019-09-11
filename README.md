@@ -28,18 +28,25 @@ Current state of the project:  pre-alpha
 This section defines the definition of the different stakeholders that will be interacting with this service.  
 Like the type of users and what they can do with the service.
 
-- Developer / Dev:
+Same permission level
+Below is user types with standard permissions type given
+- Dev (Developer) / Admin Account:
     - A "developer" is defined as the person who is creating the application
     - A developer is also referenced as the person who can build upon the API for their app
-- User / Client:
+    - Admins have access to modify settings in the IAM.
+    - Admin accounts can also be owned by non developers
+- User / Clients:
     - A "user" is defined as a user of the developer's application
     - The app that users use, is defined as the "Client"
     - Clients can be Single page applications in browsers or Mobile apps, and they are able to communicate with the service via APIs
-- Account Admin:
-    - An "Account Admin" is defined as someone who has access to modify settings in the IAM but is not neccesarily a developer, although a developer is also an account admin.
+- Custom admin
+    - Admin account with Custom permissions different from the standard permissions
+
+Below is user grouping
 - Organization
-    - "Organization" is defined as either a company that collectively publishes application(s), or a group of people who have control over a set of applications.
-    - Admin accounts can be grouped together by their organizations.
+    - "Organization" are defined as groups of people interacting with the same set of application(s) regardless of their individual permissions.
+
+The main software that will be hitting this service should be your user service and other microservices for verification and all, most client usage should not be accessing this directly. This service should more or less be used as an internal service.
 
 --------------------------------------------------
 ## IAM Definition
